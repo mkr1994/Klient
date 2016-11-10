@@ -3,6 +3,7 @@ package sdk.Controller;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import sdk.Encrypters.Crypter;
 import sdk.Encrypters.Digester;
 import sdk.Model.Book;
@@ -52,6 +53,7 @@ public class MainController {
                     break;
                 case 3:
                     //GuestController
+                    getBooksFromCurriculum();
                     break;
                 case 4:
                     createNewUser();
@@ -65,15 +67,72 @@ public class MainController {
 
     private void getBooksFromCurriculum(){
 
+      //  System.out.println("");
+        int curriculumID=2;
+
+        BufferedReader br = null;
+        try {
+
+            ServerConnection.openServerConnection("curriculum/"+curriculumID+"/books", "GET");
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+            StringBuilder builder = new StringBuilder();
+            String aux;
+
+            while ((aux = br.readLine()) != null) {
+                builder.append(aux + "\n");
+            }
+
+            String output = builder.toString();
+
+
+            System.out.println("Output from Server .... \n");
+            Gson gson = new Gson();
+            int i = 1;
+            ArrayList<Book> books;
+
+            output = Crypter.encryptDecryptXOR(output);
+            System.out.println(output);
+
+            JsonReader reader = new JsonReader(new StringReader(output));
+            reader.setLenient(true);
+
+            books = gson.fromJson(reader, new TypeToken<List<Book>>(){}.getType());
+
+            // Header i bogvisning
+            System.out.printf("%-7s %-55s %-70s %-20s\n", "Nr.",  "Book title:", "Book Author", "Book ISBN", "Book Publisher: ");
+            for(Book book : books){
+                System.out.printf("%-7d %-55s %-70s %-20.0f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPublisher());
+                i++;
+            }
+
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
     private void getAllBooks(){
 
-        String output = "";
+        Gson gson = new Gson();
         BufferedReader br = null;
         try {
 
             ServerConnection.openServerConnection("book", "GET");
+
+
 
 
 
@@ -92,14 +151,14 @@ public class MainController {
                 builder.append(aux + "\n");
             }
 
-             output = builder.toString();
+            String output = builder.toString();
 
 
         System.out.println("Output from Server .... \n");
 
 
 
-            Gson gson = new Gson();
+
             int i = 1;
             ArrayList<Book> books;
 
@@ -109,13 +168,14 @@ public class MainController {
             JsonReader reader = new JsonReader(new StringReader(output));
             reader.setLenient(true);
 
+
             books = gson.fromJson(reader, new TypeToken<List<Book>>(){}.getType());
 
             // Header i bogvisning
-            System.out.printf("%-7s %-55s %-70s %-20s\n", "Nr.",  "Book title:", "Book Author", "Book ISBN", "Book Publisher: ");
-            for(Book book : books){
-                System.out.printf("%-7d %-55s %-70s %-20.0f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPublisher());
-                i++;
+                System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.",  "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
+                for(Book book : books){
+                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB());
+                    i++;
             }
 
 

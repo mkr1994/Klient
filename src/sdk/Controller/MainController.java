@@ -12,6 +12,7 @@ import sdk.ServerConnection;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -100,8 +101,6 @@ public class MainController {
     }
     private ArrayList<Curriculum> getAllCurriculums(){
 
-        //Gson gson = new Gson();
-
             String output = setConnection("curriculum", "GET");
 
          JsonReader reader = new JsonReader(new StringReader(output));
@@ -109,57 +108,70 @@ public class MainController {
             int i = 1;
             ArrayList<Curriculum> curriculums;
             curriculums = gson.fromJson(reader, new TypeToken<List<Curriculum>>(){}.getType());
-
+/*
             // Header i bogvisning
             System.out.printf("%-7s %-20s %-20s %-20s\n", "Id.",  "School:", "Education:", "Semester:");
             for(Curriculum c : curriculums){
                 System.out.printf("%-7d %-20s %-20s %-20d\n", i,  c.getSchool(), c.getEducation(), c.getSemester());
                 i++;
             }
-
+*/
             return curriculums;
     }
 
     private void getBooksFromCurriculum(){
         int curriculumID;
         int i = 1, j= 1, choice;
-        ArrayList<Curriculum> array = getAllCurriculums();
-        ArrayList<String> a = new ArrayList<>();
-        for(Curriculum c : array){
-                if(!a.contains(c.getSchool())){
-                    System.out.println(j + c.getSchool());
-                    a.add(c.getSchool());
-                } else if (a.size() == 0){
-                    a.add(c.getSchool());
+        ArrayList<Curriculum> curriculumArrayList = getAllCurriculums();
+        ArrayList<String> strings = new ArrayList<>();
+        ArrayList<Integer> b = new ArrayList<>();
+        for(Curriculum c : curriculumArrayList){
+                if(!strings.contains(c.getSchool())){
+                    System.out.println("Nr:  "+ j + " " + c.getSchool());
+                    strings.add(c.getSchool());
+                    j++;
+                } else if (strings.size() == 0){
+                    strings.add(c.getSchool());
                 }
         }
-
+        j = 1;
         System.out.println("Indtast nr. på det uddannelsessted du er indskrevet:");
         choice = input.nextInt();
         choice--;
-        for(Curriculum c : array){
-            if(!a.get(choice).equals(c.getEducation())) {
-                array.remove(c);
+        int finalChoice = choice;
+        curriculumArrayList.removeIf(Curriculum -> !Curriculum.getSchool().contains(strings.get(finalChoice)));
+        strings.clear();
+        for(Curriculum c : curriculumArrayList){
+            if(!strings.contains(c.getEducation())){
+                System.out.println("Nr: " + j + " "+ c.getEducation());
+                strings.add(c.getEducation());
+                j++;
+            } else if (strings.size() == 0){
+                strings.add(c.getEducation());
             }
         }
-        a.clear();
-        for(Curriculum c : array){
-            if(!a.contains(c.getEducation())){
-                System.out.println(j + c.getEducation());
-                a.add(c.getEducation());
-            } else if (a.size() == 0){
-                a.add(c.getEducation());
+        j = 1;
+        System.out.println("Indtast nr. på din uddannelse: ");
+        choice = input.nextInt();
+        choice--;
+        int finalChoice2 = choice;
+        curriculumArrayList.removeIf(Curriculum -> !Curriculum.getEducation().contains(strings.get(finalChoice2)));
+
+
+
+        for(Curriculum c : curriculumArrayList){
+            if(!b.contains(c.getSemester())){
+                System.out.printf("\nNr: %d: " + c.getSemester(), j);
+                b.add(c.getSemester());
+                j++;
+            } else if (b.size() == 0){
+                b.add(c.getSemester());
             }
         }
-
-        System.out.println("Indtast uddannelse: ");
-
-
-
-        System.out.println("Indtast venligst nr. på hvilket semester du går på:");
+        System.out.println("\nIndtast venligst nr. på hvilket semester du går på:");
         curriculumID = input.nextInt();
         curriculumID--;
-        curriculumID = getAllCurriculums().get(curriculumID).getCurriculumID();
+        curriculumID = curriculumArrayList.get(curriculumID).getCurriculumID();
 
 
         String s = "curriculum/"+curriculumID+"/books";

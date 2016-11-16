@@ -1,18 +1,12 @@
 package sdk.Controller;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import sdk.Encrypters.Crypter;
 import sdk.Encrypters.Digester;
-import sdk.Model.Book;
-import sdk.Model.Curriculum;
 import sdk.Model.User;
 import sdk.ServerConnection;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import static sdk.ServerConnection.conn;
@@ -27,7 +21,7 @@ public class MainController {
     private Scanner input;
     private Gson gson;
     public static User currentUser;
-    private String userToken;
+    public String userToken;
 
     public MainController(){
         this.bookController = new BookController();
@@ -38,54 +32,24 @@ public class MainController {
     }
     public void run() {
 
-        login();
-        userController.getAllUsers(userToken);
-        int choice;
-
         while(currentUser == null) {
-
-
-            System.out.println("Velkommen til Bookit.\nTast 1 for at logge ind som bruger\nTast 2 for at logge ind som administrator\nTast 3 for at fortsætte som gæst\nTast 4 for at oprette dig som ny bruger");
-
-            choice = input.nextInt();
-            switch(choice){
-                case 1: showUserSwitch();
+            printMenu();
+            switch(input.nextInt()){
+                case 1: if(login() && currentUser.getUserType()==false){
+                    showUserSwitch();
+                } else{
+                    System.out.println("You are not an admin!");
+                }
                     break;
-                case 2: showAdminSwitch();
+                case 2: if(login() && currentUser.getUserType()==true) {
+                    showAdminSwitch();
+                }
                     break;
                 case 3: showGuestSwitch();
                     break;
                 case 4: userController.createNewUser();
+                    break;
 
-
-            }
-            if (login()) {
-                printMenu();
-                choice = input.nextInt();
-                switch (choice) {
-                    case 1:
-                        //BookController
-                        login();
-                        break;
-                    case 2:
-                        //AdminController
-                        //getAllBooks();
-                        break;
-                    case 3:
-                        //UserController
-                     //   getBooksFromCurriculum();
-                        break;
-                    case 4:
-                        //createNewUser();
-                        break;
-
-                    case 5:
-                     //   getAllCurriculums();
-                        break;
-
-                    default:
-                        break;
-                }
             }
             System.out.println("Forkert brugernavn eller adgagngskode - prøv igen!");
         }
@@ -117,9 +81,37 @@ public class MainController {
 
     private void showAdminSwitch() {
 
+        System.out.println("Welvome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nTast 3 for at slette din konto" +
+                "\nTast 4 for at logge ud  ");
+
+        switch (input.nextInt()) {
+            case 1: userController.getAllUsers(userToken);
+                break;
+            case 2: userController.deleteUser(userToken);
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+
+
+        }
+
     }
 
     private void showGuestSwitch() {
+        System.out.println("Velkommen gæst. \nTast 1 for at finde en pensumliste\nTast 2 hvis du vil oprette dig som bruger");
+
+        int choice = input.nextInt();
+
+        switch (choice) {
+            case 1:
+                bookController.getBooksFromCurriculum();
+                break;
+            case 2: userController.createNewUser();
+                break;
+        }
+
 
     }
 
@@ -129,7 +121,7 @@ public class MainController {
         BufferedReader br = null;
         try {
 
-            ServerConnection.openServerConnection(path, method);
+            ServerConnection.openServerConnectionWithToken(path, method);
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + conn.getResponseCode());
@@ -165,11 +157,10 @@ public class MainController {
         System.out.println("Please enter password: "); password = input.nextLine();
 
 
-
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(userName, Digester.hashWithSalt(password))));
 
         try {
-            ServerConnection.openServerConnection("user/login", "POST");
+            ServerConnection.openServerConnectionWithToken("user/login", "POST");
 
         OutputStream os = conn.getOutputStream();
         os.write(inputToServer.getBytes());
@@ -180,26 +171,21 @@ public class MainController {
                     + conn.getResponseCode());
         } else{
             loginOk = true;
-
         }
 
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 (conn.getInputStream())));
-
-
-        System.out.println("Output from Server .... \n");
         while ((output = br.readLine()) != null) {
-            System.out.println(output);
             userToken = output;
+
         }
-
-
-
 
         conn.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        userController.getUserFromToken(userToken);
 
         return loginOk;
     }

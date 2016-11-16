@@ -18,7 +18,7 @@ public class ServerConnection {
 
     public static HttpURLConnection conn;
 
-    public static void openServerConnection(String path, String httpMethod){
+    public static void openServerConnectionWithToken(String path, String httpMethod){
         try {
             url = new URL("http://localhost:8080/server2_0_war_exploded/"+path);
 
@@ -39,14 +39,15 @@ public class ServerConnection {
 
     }
 
-    public static void openServerConnection(String path, String httpMethod, String token){
+    public static void openServerConnectionWithToken(String path, String httpMethod, String token){
         try {
             url = new URL("http://localhost:8080/server2_0_war_exploded/"+path);
 
             conn = (HttpURLConnection) url.openConnection();
+            conn.addRequestProperty("authorization", token);
             conn.setDoOutput(true);
 
-            conn.addRequestProperty("authorization", token);
+
 
 
             conn.setRequestMethod(httpMethod);

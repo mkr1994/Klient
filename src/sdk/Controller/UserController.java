@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import sdk.Encrypters.Crypter;
-import sdk.Model.Book;
 import sdk.Model.User;
 import sdk.ServerConnection;
 
@@ -25,19 +24,86 @@ public class UserController {
     private Gson gson = new Gson();
 
 
+    protected void deleteUser(String token){
+        int userId = 0;
+
+        getAllUsers(token);
+        System.out.println("Pleaser enter number on the user you wish to delete: ");
+        userId = input.nextInt();
+
+        String output;
+
+
+        String s = "user/"+userId;
+
+        try {
+            ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+
+            System.out.println("Output from Server .... \n");
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+            }
+
+            conn.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    protected void getUserFromToken(String token){
+
+        String output = null;
+        BufferedReader br = null;
+        try {
+
+            ServerConnection.openServerConnectionWithToken("user/fromToken", "GET", token);
+
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+
+           output = br.readLine();
+            output = Crypter.encryptDecryptXOR(output);
+            MainController.currentUser = (gson.fromJson(output, User.class));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
     protected void createNewUser() {
         String firstName, lastName, username, email, password, output;
-        input.nextLine();
+       // input.nextLine();
         System.out.println("Enter your firstname: "); firstName = input.nextLine();
         System.out.println("Enter your lastname: "); lastName = input.nextLine();
         System.out.println("Enter your username: "); username = input.next();
         System.out.println("Enter your email: "); email = input.next();
         System.out.println("Enter your password: "); password = input.next();
 
-        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(firstName, lastName, username, email, password, true)));
+        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(firstName, lastName, username, email, password, false)));
 
         try {
-            ServerConnection.openServerConnection("user", "POST");
+            ServerConnection.openServerConnectionWithToken("user", "POST");
 
             OutputStream os = conn.getOutputStream();
             os.write(inputToServer.getBytes());
@@ -72,7 +138,7 @@ public class UserController {
         BufferedReader br = null;
         try {
 
-            ServerConnection.openServerConnection("user", "GET", token);
+            ServerConnection.openServerConnectionWithToken("user", "GET", token);
 
 
             if (conn.getResponseCode() != 200) {
@@ -95,8 +161,6 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        System.out.println(output);
         JsonReader reader = new JsonReader(new StringReader(output));
         reader.setLenient(true);
 
@@ -104,10 +168,9 @@ public class UserController {
         ArrayList<User> users = gson.fromJson(reader, new TypeToken<List<User>>(){}.getType());
 
         // Header i bogvisning
-        System.out.printf("%-7s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
+        System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
         for(User user : users){
-            System.out.printf("%-7d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
+            System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
         }
-
     }
 }

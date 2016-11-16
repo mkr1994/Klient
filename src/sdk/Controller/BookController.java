@@ -18,9 +18,6 @@ public class BookController  {
 
     private Scanner input;
     private Gson gson;
-
-
-
     public BookController(){
         this.input = new Scanner(System.in);
         this.gson = new Gson();

@@ -24,6 +24,10 @@ public class UserController {
     private Gson gson = new Gson();
 
 
+    protected void editUser(){
+
+    }
+
     protected void deleteUser(String token){
         int userId = 0;
         String output;

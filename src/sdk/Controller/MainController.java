@@ -21,7 +21,7 @@ public class MainController {
     private Scanner input;
     private Gson gson;
     public static User currentUser;
-    public String userToken;
+    public String token;
 
     public MainController(){
         this.bookController = new BookController();
@@ -33,10 +33,10 @@ public class MainController {
     public void run() {
 
         while(currentUser == null) {
-            bookController.createNewBook();
+
             printMenu();
             switch(input.nextInt()){
-                case 1: if(login() && currentUser.getUserType()==false){
+                case 1: if(login() && currentUser.getUserType()==true){
                     showUserSwitch();
                 } else{
                     System.out.println("You are not an admin!");
@@ -81,17 +81,17 @@ public class MainController {
 
     private void showAdminSwitch() {
 
-        System.out.println("Welvome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nTast 3 for at slette din konto" +
-                "\nTast 4 for at logge ud  ");
+        System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create new book" +
+                "\nPress 4 to quit  ");
 
         switch (input.nextInt()) {
-            case 1: userController.getAllUsers(userToken);
+            case 1: userController.getAllUsers(token);
                 break;
-            case 2: userController.deleteUser(userToken);
+            case 2: userController.deleteUser(token);
                 break;
-            case 3:
+            case 3: bookController.createNewBook(token);
                 break;
-            case 4:
+            case 4: bookController.getAllBooks();
                 break;
 
 
@@ -176,7 +176,7 @@ public class MainController {
         BufferedReader br = new BufferedReader(new InputStreamReader(
                 (conn.getInputStream())));
         while ((output = br.readLine()) != null) {
-            userToken = output;
+            token = output;
 
         }
 
@@ -185,7 +185,7 @@ public class MainController {
             e.printStackTrace();
         }
 
-        userController.getUserFromToken(userToken);
+        userController.getUserFromToken(token);
 
         return loginOk;
     }
@@ -194,7 +194,7 @@ public class MainController {
         System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 continue without login\nPress 4 to create new user");
     }
 
-    public String getUserToken(){
-        return userToken;
+    public String getToken(){
+        return token;
     }
 }

@@ -11,6 +11,7 @@ import sdk.ServerConnection;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -36,26 +37,48 @@ public class BookController  {
 
     }
 
-    protected void createNewBook(){
+    protected void createNewBook(String token){
         String output;
-        String publisher, title, author;
-        double priceAB, priceSAXO, priceCDON, ISBN;
-        int version;
+        String publisher = null, title = null, author = null;
+        double priceAB =0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
+        int version = 0;
+        boolean inputOk = false;
+
+        System.out.println("First you need to select the corresponding curriculum the book belongs to:");
         int curriculumID = extractCurriculumID();
-        System.out.println("Enter title: "); title = input.nextLine();
-        System.out.println("Enter author: "); author = input.nextLine();
-        System.out.println("Enter publisher: "); publisher = input.next();
-        System.out.println("Enter version: "); version = input.nextInt();
-        System.out.println("Enter book ISBN:"); ISBN = input.nextDouble();
-        System.out.println("Enter price at Amazon: "); priceAB = input.nextDouble();
-        System.out.println("Enter price at SAXO:"); priceSAXO = input.nextDouble();
-        System.out.println("Enter price at CDON:"); priceCDON = input.nextDouble();
+        System.out.println("Great! Now enter the book information: ");
+
+        do {
+            try {
+                System.out.println("Enter title: ");
+                title = input.nextLine();
+                System.out.println("Enter author: ");
+                author = input.nextLine();
+                System.out.println("Enter publisher: ");
+                publisher = input.next();
+                System.out.println("Enter version: ");
+                version = input.nextInt();
+                System.out.println("Enter book ISBN:");
+                ISBN = input.nextDouble();
+                System.out.println("Enter price at Amazon: ");
+                priceAB = input.nextDouble();
+                System.out.println("Enter price at SAXO:");
+                priceSAXO = input.nextDouble();
+                System.out.println("Enter price at CDON:");
+                priceCDON = input.nextDouble();
+                inputOk = true;
+            } catch (InputMismatchException e) {
+                System.out.println("Seems like you entered a bad value! Please try again!");
+                inputOk = false;
+            }
+            input.nextLine();
+        }while(!inputOk);
 
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID)));
 
 
         try {
-            ServerConnection.openServerConnectionWithToken("book", "POST");
+            ServerConnection.openServerConnectionWithToken("book", "POST", token);
 
             OutputStream os = conn.getOutputStream();
             os.write(inputToServer.getBytes());
@@ -112,7 +135,7 @@ public class BookController  {
             }
         }
         j = 1;
-        System.out.println("Choose number on School:");
+        System.out.println("Choose number on Institution:");
         choice = input.nextInt();
         choice--;
         int finalChoice = choice;
@@ -145,17 +168,19 @@ public class BookController  {
                 b.add(c.getSemester());
             }
         }
-        System.out.println("\nIndtast venligst nr. på hvilket semester du går på:");
+        System.out.println("\nEnter number on semester:");
         curriculumID = input.nextInt();
         curriculumID--;
         curriculumID = curriculumArrayList.get(curriculumID).getCurriculumID();
 
+        input.nextLine();
         return curriculumID;
     }
 
     protected int getBooksFromCurriculum(){
        int i = 1;
         int curriculumID = extractCurriculumID();
+        int bookToGetInfo;
 
         String s = "curriculum/"+curriculumID+"/books";
 
@@ -173,6 +198,12 @@ public class BookController  {
             System.out.printf("%-7d %-55s %-70s %-20.0f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPublisher());
             i++;
         }
+
+        System.out.println("Enter number on book you wish to retrieve price info: ");
+        bookToGetInfo = input.nextInt();
+        bookToGetInfo--;
+
+        System.out.printf("You have chosen: \n%-30s Price at Amazon: %-30.2f kr. Price at CDON: %-30.2f kr. Price at SAXO: %-30.2f kr.", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
 
         return curriculumID;
 

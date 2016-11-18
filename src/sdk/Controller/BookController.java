@@ -3,13 +3,18 @@ package sdk.Controller;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import sdk.Encrypters.Crypter;
 import sdk.Model.Book;
 import sdk.Model.Curriculum;
+import sdk.Model.User;
+import sdk.ServerConnection;
 
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static sdk.ServerConnection.conn;
 
 /**
  * Created by magnusrasmussen on 29/10/2016.
@@ -21,6 +26,60 @@ public class BookController  {
     public BookController(){
         this.input = new Scanner(System.in);
         this.gson = new Gson();
+    }
+
+
+    protected void addBookToCurriculum(int curriculumID){
+
+
+
+
+    }
+
+    protected void createNewBook(){
+        String output;
+        String publisher, title, author;
+        double priceAB, priceSAXO, priceCDON, ISBN;
+        int version;
+        int curriculumID = extractCurriculumID();
+        System.out.println("Enter title: "); title = input.nextLine();
+        System.out.println("Enter author: "); author = input.nextLine();
+        System.out.println("Enter publisher: "); publisher = input.next();
+        System.out.println("Enter version: "); version = input.nextInt();
+        System.out.println("Enter book ISBN:"); ISBN = input.nextDouble();
+        System.out.println("Enter price at Amazon: "); priceAB = input.nextDouble();
+        System.out.println("Enter price at SAXO:"); priceSAXO = input.nextDouble();
+        System.out.println("Enter price at CDON:"); priceCDON = input.nextDouble();
+
+        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID)));
+
+
+        try {
+            ServerConnection.openServerConnectionWithToken("book", "POST");
+
+            OutputStream os = conn.getOutputStream();
+            os.write(inputToServer.getBytes());
+            os.flush();
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+
+            System.out.println("Output from Server .... \n");
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+            }
+
+            conn.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -37,7 +96,7 @@ public class BookController  {
         return curriculums;
     }
 
-    protected void getBooksFromCurriculum(){
+    protected int extractCurriculumID(){
         int curriculumID;
         int i = 1, j= 1, choice;
         ArrayList<Curriculum> curriculumArrayList = getAllCurriculums();
@@ -53,7 +112,7 @@ public class BookController  {
             }
         }
         j = 1;
-        System.out.println("Indtast nr. på det uddannelsessted du er indskrevet:");
+        System.out.println("Choose number on School:");
         choice = input.nextInt();
         choice--;
         int finalChoice = choice;
@@ -69,7 +128,7 @@ public class BookController  {
             }
         }
         j = 1;
-        System.out.println("Indtast nr. på din uddannelse: ");
+        System.out.println("Enter number on education: ");
         choice = input.nextInt();
         choice--;
         int finalChoice2 = choice;
@@ -91,6 +150,12 @@ public class BookController  {
         curriculumID--;
         curriculumID = curriculumArrayList.get(curriculumID).getCurriculumID();
 
+        return curriculumID;
+    }
+
+    protected int getBooksFromCurriculum(){
+       int i = 1;
+        int curriculumID = extractCurriculumID();
 
         String s = "curriculum/"+curriculumID+"/books";
 
@@ -109,6 +174,7 @@ public class BookController  {
             i++;
         }
 
+        return curriculumID;
 
     }
 

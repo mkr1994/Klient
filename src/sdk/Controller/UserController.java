@@ -26,12 +26,12 @@ public class UserController {
 
     protected void deleteUser(String token){
         int userId = 0;
-
+        String output;
         getAllUsers(token);
         System.out.println("Pleaser enter number on the user you wish to delete: ");
         userId = input.nextInt();
 
-        String output;
+
 
 
         String s = "user/"+userId;

@@ -33,6 +33,7 @@ public class MainController {
     public void run() {
 
         while(currentUser == null) {
+            bookController.createNewBook();
             printMenu();
             switch(input.nextInt()){
                 case 1: if(login() && currentUser.getUserType()==false){
@@ -58,8 +59,7 @@ public class MainController {
     private void showUserSwitch() {
 
         int choice;
-
-        System.out.println("Velkommen til Brugermenuen. \nTast 1 for at se en pensumliste\nTast 2 for at opdatere dine oplysninger\nTast 3 for at slette din konto" +
+                System.out.println("Velkommen til Brugermenuen. \nTast 1 for at se en pensumliste\nTast 2 for at opdatere dine oplysninger\nTast 3 for at slette din konto" +
                 "\nTast 4 for at logge ud  ");
 
         choice = input.nextInt();

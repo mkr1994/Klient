@@ -5,7 +5,7 @@ package sdk.Model;
  */
 public class Book {
 
-    private int bookID;
+    private int curriculumID;
     private double ISBN;
     private String publisher;
     private String title;
@@ -15,8 +15,8 @@ public class Book {
     private double priceCDON;
     private int version;
 
-    public Book(int bookID, String publisher, String title, String author, int version, double ISBN, double priceAB, double priceSAXO, double priceCDON) {
-        this.bookID = bookID;
+    public Book(String publisher, String title, String author, int version, double ISBN, double priceAB, double priceSAXO, double priceCDON, int curriculumID) {
+        this.curriculumID = curriculumID;
         this.publisher = publisher;
         this.title = title;
         this.author = author;
@@ -38,12 +38,12 @@ public class Book {
         this.priceCDON = priceCDON;
     }
 
-    public int getBookID() {
-        return bookID;
+    public int getCurriculumID() {
+        return curriculumID;
     }
 
-    public void setBookID(int bookID) {
-        this.bookID = bookID;
+    public void setCurriculumID(int curriculumID) {
+        this.curriculumID = curriculumID;
     }
 
     public String getPublisher() {

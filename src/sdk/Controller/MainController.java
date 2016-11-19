@@ -36,10 +36,13 @@ public class MainController {
 
             printMenu();
             switch(input.nextInt()){
-                case 1: if(login() && currentUser.getUserType()==true){
+                case 1: if(login() && currentUser.getUserType()==false){
                     showUserSwitch();
-                } else{
+                } else if(currentUser.getUserType() == true){
                     System.out.println("You are not an admin!");
+                    userController.editUser(token);
+                } else{
+                    System.out.println("Forkert brugernavn eller adgagngskode - prøv igen!");
                 }
                     break;
                 case 2: if(login() && currentUser.getUserType()==true) {
@@ -52,14 +55,13 @@ public class MainController {
                     break;
 
             }
-            System.out.println("Forkert brugernavn eller adgagngskode - prøv igen!");
         }
     }
 
     private void showUserSwitch() {
 
         int choice;
-                System.out.println("Velkommen til Brugermenuen. \nTast 1 for at se en pensumliste\nTast 2 for at opdatere dine oplysninger\nTast 3 for at slette din konto" +
+                System.out.println("Welcome to usermenu \nPress 1 to find af book\nPress 2 to update your info\nPress 3 to delete your account" +
                 "\nTast 4 for at logge ud  ");
 
         choice = input.nextInt();
@@ -67,7 +69,7 @@ public class MainController {
         switch (choice) {
             case 1: bookController.getBooksFromCurriculum();
                 break;
-            case 2:
+            case 2: userController.editUser(token);
                 break;
             case 3:
                 break;
@@ -100,7 +102,7 @@ public class MainController {
     }
 
     private void showGuestSwitch() {
-        System.out.println("Velkommen gæst. \nTast 1 for at finde en pensumliste\nTast 2 hvis du vil oprette dig som bruger");
+        System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to signup as an user");
 
         int choice = input.nextInt();
 
@@ -167,8 +169,8 @@ public class MainController {
         os.flush();
 
         if (conn.getResponseCode() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode());
+            System.out.println("Failed : HTTP error code : ");
+                  //  + conn.getResponseCode());
         } else{
             loginOk = true;
         }

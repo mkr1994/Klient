@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import sdk.Encrypters.Crypter;
+import sdk.Encrypters.Digester;
 import sdk.Model.User;
 import sdk.ServerConnection;
 
@@ -24,24 +25,42 @@ public class UserController {
     private Gson gson = new Gson();
 
 
-    protected void editUser(){
-
-    }
-
-    protected void deleteUser(String token){
-        int userId = 0;
+    protected void editUser(String token){
         String output;
-        getAllUsers(token);
-        System.out.println("Pleaser enter number on the user you wish to delete: ");
-        userId = input.nextInt();
+        User u = MainController.currentUser;
+        String newInfo;
+        int choice;
 
+        // Header for showing users
+        System.out.printf("%-30s %-30s %-25s %-25s\n", "Brugernavn:", "Fornavn:", "Efternavn:", "Email:");
+        System.out.printf("%-30s %-30s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail());
 
+        System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel"); choice = input.nextInt();
+        input.nextLine();
+        System.out.println("Please enter new value: "); newInfo = input.nextLine();
+        switch(choice){
+            case 1: u.setUserName(newInfo);
+                break;
+            case 2: u.setFirstName(newInfo);
+                break;
+            case 3: u.setLastName(newInfo);
+                break;
+            case 4: u.setEmail(newInfo);
+                break;
+            case 5: u.setPassword(Digester.hashWithSalt(newInfo));
+                break;
+            default:
+                System.out.println("Wrong input");
 
-
-        String s = "user/"+userId;
+        }
+        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(u));
 
         try {
-            ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
+            ServerConnection.openServerConnectionWithToken("user", "PUT", token);
+
+            OutputStream os = conn.getOutputStream();
+            os.write(inputToServer.getBytes());
+            os.flush();
 
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -64,9 +83,43 @@ public class UserController {
 
     }
 
+    protected void deleteUser(String token){
+        int userId = 0;
+        String output;
+        if(getAllUsers(token)) {
+            System.out.println("Pleaser enter number on the user you wish to delete: ");
+            userId = input.nextInt();
+            String s = "user/" + userId;
+
+            try {
+                ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
+
+                if (conn.getResponseCode() != 200) {
+                    throw new RuntimeException("Failed : HTTP error code : "
+                            + conn.getResponseCode());
+                }
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        (conn.getInputStream())));
+
+
+                System.out.println("Output from Server .... \n");
+                while ((output = br.readLine()) != null) {
+                    System.out.println(output);
+                }
+
+                conn.disconnect();
+            } catch (Exception e) {
+                System.out.println("An error occurred! " + e.getMessage());
+            }
+        } else{
+            MainController.currentUser = null;
+        }
+
+    }
+
 
     protected void getUserFromToken(String token){
-
         String output = null;
         BufferedReader br = null;
         try {
@@ -81,7 +134,6 @@ public class UserController {
 
             br = new BufferedReader(new InputStreamReader(
                     (conn.getInputStream())));
-
 
            output = br.readLine();
             output = Crypter.encryptDecryptXOR(output);
@@ -137,9 +189,10 @@ public class UserController {
     }
 
 
-    protected void getAllUsers(String token){
+    protected boolean getAllUsers(String token){
         String output = null;
         BufferedReader br = null;
+        boolean requestSuccess = false;
         try {
 
             ServerConnection.openServerConnectionWithToken("user", "GET", token);
@@ -162,19 +215,27 @@ public class UserController {
             output = builder.toString();
             output = Crypter.encryptDecryptXOR(output);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            JsonReader reader = new JsonReader(new StringReader(output));
+            reader.setLenient(true);
+
+
+            ArrayList<User> users = gson.fromJson(reader, new TypeToken<List<User>>(){}.getType());
+
+            // Header for showing users
+            System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
+            for(User user : users){
+                System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
+            }
+            requestSuccess = true;
+
+        } catch (Exception e) {
+            System.out.println("An error occurred. Please login again." + e.getMessage());
+            requestSuccess = false;
+
         }
-        JsonReader reader = new JsonReader(new StringReader(output));
-        reader.setLenient(true);
 
+        return requestSuccess;
 
-        ArrayList<User> users = gson.fromJson(reader, new TypeToken<List<User>>(){}.getType());
-
-        // Header i bogvisning
-        System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
-        for(User user : users){
-            System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
-        }
     }
+
 }

@@ -16,16 +16,14 @@ import static sdk.ServerConnection.conn;
  */
 public class MainController {
     private BookController bookController;
-    private AdminController adminController;
     private UserController userController;
     private Scanner input;
     private Gson gson;
     public static User currentUser;
-    public String token;
+    private String token;
 
     public MainController(){
         this.bookController = new BookController();
-        this.adminController = new AdminController();
         this.userController = new UserController();
         this.input = new Scanner(System.in);
         this.gson = new Gson();
@@ -36,14 +34,17 @@ public class MainController {
 
             printMenu();
             switch(input.nextInt()){
-                case 1: if(login() && currentUser.getUserType()==false){
-                    showUserSwitch();
-                } else if(currentUser.getUserType() == true){
-                    System.out.println("You are not an admin!");
-                    userController.editUser(token);
-                } else{
-                    System.out.println("Forkert brugernavn eller adgagngskode - prøv igen!");
-                }
+                case 1:
+                    if(login()) {
+                        if (currentUser.getUserType() == false) {
+                            showUserSwitch();
+                        } else if(currentUser.getUserType() == true) {
+                            System.out.println("You are not an admin!");
+                            userController.editUser(token);
+                        }
+                    } else {
+                        System.out.println("Wrong username or password!");
+                    }
                     break;
                 case 2: if(login() && currentUser.getUserType()==true) {
                     showAdminSwitch();
@@ -117,13 +118,41 @@ public class MainController {
 
     }
 
+    public static void setPostConnection(String path, String method, String token, String inputToServer){
+       String output;
+        try {
+            if(token == null){
+                ServerConnection.openServerConnectionWithoutToken(path, method);
+            }else {
+                ServerConnection.openServerConnectionWithoutToken(path, method, token);
+            }
+            OutputStream os = conn.getOutputStream();
+            os.write(inputToServer.getBytes());
+            os.flush();
 
-    public static String setConnection(String path, String method){
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + conn.getResponseCode());
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (conn.getInputStream())));
+
+            while ((output = br.readLine()) != null) {
+                System.out.println(output);
+            }
+
+            conn.disconnect();
+        } catch (Exception e) {
+            System.out.println("An error occurred!");
+        }
+    }
+
+    public static String setGetConnection(String path, String method){
         String output = null;
         BufferedReader br = null;
         try {
 
-            ServerConnection.openServerConnectionWithToken(path, method);
+            ServerConnection.openServerConnectionWithoutToken(path, method);
             if (conn.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + conn.getResponseCode());
@@ -152,25 +181,25 @@ public class MainController {
     private boolean login()  {
         String userName, password, output;
         boolean loginOk = false;
+        input.nextLine();
 
-        Scanner input = new Scanner(System.in);
         System.out.println("Please enter username: "); userName = input.nextLine();
-
         System.out.println("Please enter password: "); password = input.nextLine();
 
 
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(userName, Digester.hashWithSalt(password))));
 
         try {
-            ServerConnection.openServerConnectionWithToken("user/login", "POST");
+            ServerConnection.openServerConnectionWithoutToken("user/login", "POST");
 
         OutputStream os = conn.getOutputStream();
         os.write(inputToServer.getBytes());
         os.flush();
 
         if (conn.getResponseCode() != 200) {
-            System.out.println("Failed : HTTP error code : ");
-                  //  + conn.getResponseCode());
+            System.out.println("Failed : HTTP error code : "
+                    + conn.getResponseCode());
+
         } else{
             loginOk = true;
         }
@@ -183,17 +212,22 @@ public class MainController {
         }
 
         conn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("An error occurred!");
         }
-
-        userController.getUserFromToken(token);
+        if(loginOk) {
+            userController.getUserFromToken(token);
+        }
 
         return loginOk;
     }
 
     private void printMenu(){
         System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 continue without login\nPress 4 to create new user");
+    }
+
+    public static void logout(){
+        currentUser = null;
     }
 
     public String getToken(){

@@ -55,31 +55,7 @@ public class UserController {
         }
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(u));
 
-        try {
-            ServerConnection.openServerConnectionWithToken("user", "PUT", token);
-
-            OutputStream os = conn.getOutputStream();
-            os.write(inputToServer.getBytes());
-            os.flush();
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-
-            System.out.println("Output from Server .... \n");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-            }
-
-            conn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        MainController.setPostConnection("user/25", "PUT", token, inputToServer);
 
     }
 
@@ -92,7 +68,7 @@ public class UserController {
             String s = "user/" + userId;
 
             try {
-                ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
+                ServerConnection.openServerConnectionWithoutToken(s, "DELETE", token);
 
                 if (conn.getResponseCode() != 200) {
                     throw new RuntimeException("Failed : HTTP error code : "
@@ -124,7 +100,7 @@ public class UserController {
         BufferedReader br = null;
         try {
 
-            ServerConnection.openServerConnectionWithToken("user/fromToken", "GET", token);
+            ServerConnection.openServerConnectionWithoutToken("user/fromToken", "GET", token);
 
 
             if (conn.getResponseCode() != 200) {
@@ -158,34 +134,7 @@ public class UserController {
 
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(firstName, lastName, username, email, password, false)));
 
-        try {
-            ServerConnection.openServerConnectionWithToken("user", "POST");
-
-            OutputStream os = conn.getOutputStream();
-            os.write(inputToServer.getBytes());
-            os.flush();
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-
-            System.out.println("Output from Server .... \n");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-            }
-
-            conn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
+        MainController.setPostConnection("user", "POST", null, inputToServer);
     }
 
 
@@ -195,7 +144,7 @@ public class UserController {
         boolean requestSuccess = false;
         try {
 
-            ServerConnection.openServerConnectionWithToken("user", "GET", token);
+            ServerConnection.openServerConnectionWithoutToken("user", "GET", token);
 
 
             if (conn.getResponseCode() != 200) {

@@ -6,7 +6,6 @@ import com.google.gson.stream.JsonReader;
 import sdk.Encrypters.Crypter;
 import sdk.Model.Book;
 import sdk.Model.Curriculum;
-import sdk.Model.User;
 import sdk.ServerConnection;
 
 import java.io.*;
@@ -50,22 +49,14 @@ public class BookController  {
 
         do {
             try {
-                System.out.println("Enter title: ");
-                title = input.nextLine();
-                System.out.println("Enter author: ");
-                author = input.nextLine();
-                System.out.println("Enter publisher: ");
-                publisher = input.next();
-                System.out.println("Enter version: ");
-                version = input.nextInt();
-                System.out.println("Enter book ISBN:");
-                ISBN = input.nextDouble();
-                System.out.println("Enter price at Amazon: ");
-                priceAB = input.nextDouble();
-                System.out.println("Enter price at SAXO:");
-                priceSAXO = input.nextDouble();
-                System.out.println("Enter price at CDON:");
-                priceCDON = input.nextDouble();
+                System.out.println("Enter title: "); title = input.nextLine();
+                System.out.println("Enter author: "); author = input.nextLine();
+                System.out.println("Enter publisher: "); publisher = input.nextLine();
+                System.out.println("Enter version: "); version = input.nextInt();
+                System.out.println("Enter book ISBN:");ISBN = input.nextDouble();
+                System.out.println("Enter price at Amazon: "); priceAB = input.nextDouble();
+                System.out.println("Enter price at SAXO:"); priceSAXO = input.nextDouble();
+                System.out.println("Enter price at CDON:"); priceCDON = input.nextDouble();
                 inputOk = true;
             } catch (InputMismatchException e) {
                 System.out.println("Seems like you entered a bad value! Please try again!");
@@ -76,39 +67,14 @@ public class BookController  {
 
         String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID)));
 
-
-        try {
-            ServerConnection.openServerConnectionWithToken("book", "POST", token);
-
-            OutputStream os = conn.getOutputStream();
-            os.write(inputToServer.getBytes());
-            os.flush();
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-
-            System.out.println("Output from Server .... \n");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-            }
-
-            conn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        MainController.setPostConnection("book", "POST", token, inputToServer);
 
     }
 
 
     protected ArrayList<Curriculum> getAllCurriculums(){
 
-        String output = MainController.setConnection("curriculum", "GET");
+        String output = MainController.setGetConnection("curriculum", "GET");
 
         JsonReader reader = new JsonReader(new StringReader(output));
         reader.setLenient(true);
@@ -185,7 +151,7 @@ public class BookController  {
         String s = "curriculum/"+curriculumID+"/books";
 
 
-        String output = MainController.setConnection(s,"GET");
+        String output = MainController.setGetConnection(s,"GET");
 
         JsonReader reader = new JsonReader(new StringReader(output));
         reader.setLenient(true);
@@ -211,7 +177,7 @@ public class BookController  {
 
     protected void getAllBooks(){
         int i = 1;
-        String output = MainController.setConnection("book", "GET");
+        String output = MainController.setGetConnection("book", "GET");
         System.out.println(output);
         JsonReader reader = new JsonReader(new StringReader(output));
         reader.setLenient(true);

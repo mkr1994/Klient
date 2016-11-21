@@ -45,8 +45,6 @@ public class ServerConnection {
             conn.setDoOutput(true);
 
 
-
-
             conn.setRequestMethod(httpMethod);
             conn.setRequestProperty("Content-Type", "application/json");
 

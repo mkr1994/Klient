@@ -89,8 +89,8 @@ public class BookController  {
         int curriculumID;
         int i = 1, j= 1, choice;
         ArrayList<Curriculum> curriculumArrayList = getAllCurriculums();
-        ArrayList<String> strings = new ArrayList<>();
-        ArrayList<Integer> b = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList();
+        ArrayList<Integer> b = new ArrayList();
         for(Curriculum c : curriculumArrayList){
             if(!strings.contains(c.getSchool())){
                 System.out.println("Nr:  "+ j + " " + c.getSchool());

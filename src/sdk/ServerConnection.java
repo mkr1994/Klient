@@ -5,6 +5,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Created by magnusrasmussen on 25/10/2016.
@@ -17,7 +24,7 @@ public class ServerConnection {
 
     public static void openServerConnectionWithoutToken(String path, String httpMethod){
         try {
-            url = new URL("http://localhost:8080/server2_0_war_exploded/"+path);
+            url = new URL("http://localhost:8080/Server_war_exploded/"+path);
 
         conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);

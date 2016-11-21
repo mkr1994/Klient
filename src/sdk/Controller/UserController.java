@@ -62,13 +62,23 @@ public class UserController {
     protected void deleteUser(String token){
         int userId = 0;
         String output;
-        if(getAllUsers(token)) {
-            System.out.println("Pleaser enter number on the user you wish to delete: ");
-            userId = input.nextInt();
+
+        if(MainController.currentUser.getUserType() == true){
+            if(getAllUsers(token)) {
+                System.out.println("Pleaser enter number on the user you wish to delete: ");
+                userId = input.nextInt();
+            }
+        } else{
+            System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
+            if(input.next().equals("yes"))
+             userId = MainController.currentUser.getUserID();
+        }
+
+        if(userId != 0) {
             String s = "user/" + userId;
 
             try {
-                ServerConnection.openServerConnectionWithoutToken(s, "DELETE", token);
+                ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
 
                 if (conn.getResponseCode() != 200) {
                     throw new RuntimeException("Failed : HTTP error code : "
@@ -88,10 +98,7 @@ public class UserController {
             } catch (Exception e) {
                 System.out.println("An error occurred! " + e.getMessage());
             }
-        } else{
-            MainController.currentUser = null;
         }
-
     }
 
 
@@ -100,7 +107,7 @@ public class UserController {
         BufferedReader br = null;
         try {
 
-            ServerConnection.openServerConnectionWithoutToken("user/fromToken", "GET", token);
+            ServerConnection.openServerConnectionWithToken("user/fromToken", "GET", token);
 
 
             if (conn.getResponseCode() != 200) {
@@ -144,7 +151,7 @@ public class UserController {
         boolean requestSuccess = false;
         try {
 
-            ServerConnection.openServerConnectionWithoutToken("user", "GET", token);
+            ServerConnection.openServerConnectionWithToken("user", "GET", token);
 
 
             if (conn.getResponseCode() != 200) {

@@ -36,7 +36,7 @@ public class ServerConnection {
 
     }
 
-    public static void openServerConnectionWithoutToken(String path, String httpMethod, String token){
+    public static void openServerConnectionWithToken(String path, String httpMethod, String token){
         try {
             url = new URL("http://localhost:8080/server2_0_war_exploded/"+path);
 

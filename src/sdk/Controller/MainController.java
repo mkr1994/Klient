@@ -72,7 +72,7 @@ public class MainController {
                 break;
             case 2: userController.editUser(token);
                 break;
-            case 3:
+            case 3: userController.deleteUser(token);
                 break;
             case 4:
                 break;
@@ -85,7 +85,7 @@ public class MainController {
     private void showAdminSwitch() {
 
         System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create new book" +
-                "\nPress 4 to quit  ");
+                "\nPress 4 to view all books  ");
 
         switch (input.nextInt()) {
             case 1: userController.getAllUsers(token);
@@ -124,7 +124,7 @@ public class MainController {
             if(token == null){
                 ServerConnection.openServerConnectionWithoutToken(path, method);
             }else {
-                ServerConnection.openServerConnectionWithoutToken(path, method, token);
+                ServerConnection.openServerConnectionWithToken(path, method, token);
             }
             OutputStream os = conn.getOutputStream();
             os.write(inputToServer.getBytes());

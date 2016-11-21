@@ -178,7 +178,6 @@ public class BookController  {
     protected void getAllBooks(){
         int i = 1;
         String output = MainController.setGetConnection("book", "GET");
-        System.out.println(output);
         JsonReader reader = new JsonReader(new StringReader(output));
         reader.setLenient(true);
 

@@ -38,52 +38,59 @@ public class MainController {
 
     while (currentUser == null) {
 
-        printMenu();
-        int choice = input.nextInt();
+
+            printMenu();
+        try {
+            int choice = input.nextInt();
 
 
-        if (choice == 3 || choice == 4) {
-            switch (choice) {
-                case 3:
-                    showGuestSwitch();
-                    break;
-                case 4:
-                    userController.createNewUser();
-                    break;
+            if (choice == 3 || choice == 4) {
+                switch (choice) {
+                    case 3:
+                        showGuestSwitch();
+                        break;
+                    case 4:
+                        userController.createNewUser();
+                        break;
 
-            }
-        } else if (choice == 1 || choice == 2) {
-            login(new ResponseCallback<String>() {
-                @Override
-                public void success(String data) {
-                    token = data;
-                    userController.getUserFromToken();
-                    switch (choice) {
-                        case 1:
-                            if (currentUser.getUserType() == false) {
-                                do {
-                                    showUserSwitch();
-                                }while(currentUser != null);
-                            }
-                            break;
-                        case 2:
-                            if (currentUser.getUserType() == true) {
-                                do {
-                                    showAdminSwitch();
-                                }while(currentUser != null);
-                            }
-                            break;
+                }
+            } else if (choice == 1 || choice == 2) {
+                login(new ResponseCallback<String>() {
+                    @Override
+                    public void success(String data) {
+                        token = data;
+                        userController.getUserFromToken();
+                        switch (choice) {
+                            case 1:
+                                if (currentUser.getUserType() == false) {
+                                    do {
+                                        showUserSwitch();
+                                    } while (currentUser != null);
+                                }
+                                break;
+                            case 2:
+                                if (currentUser.getUserType() == true) {
+                                    do {
+                                        showAdminSwitch();
+                                    } while (currentUser != null);
+                                }
+                                break;
+                        }
                     }
-                }
 
-                @Override
-                public void error(int status) {
-                    System.out.println("Error, status: " + status);
+                    @Override
+                    public void error(int status) {
+                        System.out.println("Error, status: " + status);
 
-                }
-            });
-        } else {
-            System.out.println("Please enter a valid number!");
+                    }
+                });
+            } else {
+                System.out.println("Please enter a valid number!");
+            }
+        }catch(Exception e){
+            System.out.println("A serious error occurred!");
+            logout();
+            input.next();
         }
     }
 
@@ -103,7 +110,6 @@ public class MainController {
             case 2: userController.editUser();
                 break;
             case 3: userController.deleteUser();
-                currentUser = null;
                 break;
             case 4: logout();
                 break;
@@ -134,7 +140,7 @@ public class MainController {
     }
 
     private void showGuestSwitch() {
-        System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to signup as an user");
+        System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to signup as an user\nPress 3 to return to main menu");
 
         int choice = input.nextInt();
 
@@ -144,6 +150,7 @@ public class MainController {
                 break;
             case 2: userController.createNewUser();
                 break;
+            default: break;
         }
 
 
@@ -166,10 +173,11 @@ public class MainController {
             postRequest.setEntity(loginInfo);
             postRequest.setHeader("Content-Type", "application/json");
             this.connection.execute(postRequest, new ResponseParser() {
+
                 public void payload(String json) {
-                    if(json != null) {
+                   // if(json != null) {
                         responseCallback.success(json);
-                    }
+                   // }
                 }
                 public void error(int status) {
                     responseCallback.error(status);
@@ -194,6 +202,7 @@ public class MainController {
 
     public static void logout(){
         currentUser = null;
+        token = null;
     }
 
     public String getToken(){

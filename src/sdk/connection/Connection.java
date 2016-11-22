@@ -35,15 +35,18 @@ public class Connection {
         } else {
           methods.error(status);
 
+
         }
-        return null;
+          return null;
       }
 
     };
 
     try {
       String json = this.httpClient.execute(uriRequest, responseHandler);
-      methods.payload(json);
+      if(json != null) {
+        methods.payload(json);
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }

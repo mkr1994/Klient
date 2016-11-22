@@ -26,16 +26,20 @@ public class UserController {
 
     public void editUser(){
         User u = MainController.currentUser;
-        String newInfo;
-        int choice;
+        String newInfo = null;
+        int choice, tries = 0;
+        boolean fireRequest = true;
 
         // Header for showing userinfo
-        System.out.printf("%-30s %-30s %-25s %-25s\n", "Brugernavn:", "Fornavn:", "Efternavn:", "Email:");
-        System.out.printf("%-30s %-30s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail());
+        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Password:");
+        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*******");
 
         System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel"); choice = input.nextInt();
         input.nextLine();
-        System.out.println("Please enter new value: "); newInfo = input.nextLine();
+        if(choice < 5) {
+            System.out.println("Please enter new value: ");
+            newInfo = input.nextLine();
+        }
         switch(choice){
             case 1: u.setUserName(newInfo);
                 break;
@@ -45,26 +49,44 @@ public class UserController {
                 break;
             case 4: u.setEmail(newInfo);
                 break;
-            case 5: u.setPassword(Digester.hashWithSalt(newInfo));
+            case 5:
+                do {
+                    System.out.println("Enter your old password: ");
+                    newInfo = input.nextLine();
+                    tries++;
+                    if (u.getPassword().equals(Digester.hashWithSalt(newInfo))) {
+                       tries = 3;
+                        System.out.println("Enter your new password:");
+                        newInfo = input.nextLine();
+                        u.setPassword(Digester.hashWithSalt(newInfo));
+                        fireRequest = true;
+                    }else{
+                        System.out.println("You entered a wrong password! Tries left: " + (3 - tries));
+                        fireRequest=false;
+                    }
+                }while(tries < 3);
                 break;
             default:
                 System.out.println("Wrong input");
 
         }
 
-        String s = "user/" + u.getUserID();
-        userService.editUser(s, u, new ResponseCallback<String>() {
-            @Override
-            public void success(String data) {
-                System.out.println(data);
-            }
+        if(fireRequest) {
+            String s = "user/" + u.getUserID();
+            userService.editUser(s, u, new ResponseCallback<String>() {
+                @Override
+                public void success(String data) {
+                    System.out.println(data);
+                }
 
-            @Override
-            public void error(int status) {
+                @Override
+                public void error(int status) {
 
-            }
-        });
-
+                }
+            });
+        }else{
+            MainController.logout();
+        }
     }
 
     public void deleteUser() {
@@ -94,6 +116,7 @@ public class UserController {
                 @Override
                 public void success(Boolean data) {
                     System.out.println(data);
+                    MainController.logout();
 
                 }
 

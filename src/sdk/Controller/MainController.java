@@ -5,18 +5,13 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import sdk.Encrypters.Crypter;
 import sdk.Encrypters.Digester;
-import sdk.Model.Curriculum;
 import sdk.Model.User;
-import sdk.ServerConnection;
 import sdk.connection.Connection;
 import sdk.connection.ResponseCallback;
 import sdk.connection.ResponseParser;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Scanner;
-
-import static sdk.ServerConnection.conn;
 
 /**
  * Created by magnusrasmussen on 25/10/2016.
@@ -54,7 +49,7 @@ public class MainController {
 
                 }
             } else{
-                loginNew(new ResponseCallback<String>() {
+                login(new ResponseCallback<String>() {
                     @Override
                     public void success(String data) {
                         token = data;
@@ -74,7 +69,7 @@ public class MainController {
                     }
                     @Override
                     public void error(int status) {
-                        System.out.println("Error");
+                        System.out.println("Error, status: " + status);
 
                     }
                 });
@@ -95,7 +90,7 @@ public class MainController {
         switch (choice) {
             case 1: bookController.getBooksFromCurriculum();
                 break;
-            case 2: userController.editUser(token);
+            case 2: userController.editUser();
                 break;
             case 3: userController.deleteUser();
                 break;
@@ -143,67 +138,7 @@ public class MainController {
 
     }
 
-    public static void setPostConnection(String path, String method, String token, String inputToServer){
-       String output;
-        try {
-            if(token == null){
-                ServerConnection.openServerConnectionWithoutToken(path, method);
-            }else {
-                ServerConnection.openServerConnectionWithToken(path, method, token);
-            }
-            OutputStream os = conn.getOutputStream();
-            os.write(inputToServer.getBytes());
-            os.flush();
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
-            }
-
-            conn.disconnect();
-        } catch (Exception e) {
-            System.out.println("An error occurred!");
-        }
-    }
-
-    public static String setGetConnection(String path, String method){
-        String output = null;
-        BufferedReader br = null;
-        try {
-
-            ServerConnection.openServerConnectionWithoutToken(path, method);
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            StringBuilder builder = new StringBuilder();
-            String aux = "";
-
-            while ((aux = br.readLine()) != null) {
-                builder.append(aux + "\n");
-            }
-            output = builder.toString();
-            output = Crypter.encryptDecryptXOR(output);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return output;
-    }
-
-
-
-    public void loginNew(final ResponseCallback<String> responseCallback){
+    public void login(final ResponseCallback<String> responseCallback){
 
         HttpPost postRequest = new HttpPost(Connection.serverURL + "user/login");
 

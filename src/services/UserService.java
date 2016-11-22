@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import sdk.Controller.MainController;
 import sdk.Encrypters.Crypter;
@@ -23,11 +24,35 @@ import java.util.ArrayList;
 public class UserService {
     private Connection connection;
     private Gson gson;
+
     public UserService() {
         this.connection = new Connection();
         this.gson = new Gson();
     }
 
+    public void editUser(String path, User user, final ResponseCallback<String> responseCallback) {
+        HttpPut putRequest = new HttpPut(Connection.serverURL + path);
+
+        try {
+            StringEntity userString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(user)));
+            putRequest.setEntity(userString);
+            putRequest.setHeader("authorization", MainController.token);
+            putRequest.setHeader("Content-Type", "application/json");
+
+            this.connection.execute(putRequest, new ResponseParser() {
+                public void payload(String json) {
+                    responseCallback.success(json);
+                }
+
+                public void error(int status) {
+                    responseCallback.error(status);
+                }
+            });
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
     public void deleteUser(String s, final ResponseCallback<Boolean> responseCallback) {
         HttpDelete deleteRequest = new HttpDelete(Connection.serverURL + s);
         try {

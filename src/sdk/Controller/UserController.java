@@ -27,14 +27,16 @@ public class UserController {
     private Gson gson = new Gson();
     private UserService userService = new UserService();
 
+    public static boolean b;
 
-    protected void editUser(String token){
-        String output;
+
+
+    protected void editUser(){
         User u = MainController.currentUser;
         String newInfo;
         int choice;
 
-        // Header for showing users
+        // Header for showing userinfo
         System.out.printf("%-30s %-30s %-25s %-25s\n", "Brugernavn:", "Fornavn:", "Efternavn:", "Email:");
         System.out.printf("%-30s %-30s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail());
 
@@ -56,13 +58,23 @@ public class UserController {
                 System.out.println("Wrong input");
 
         }
-        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(u));
 
-        MainController.setPostConnection("user/25", "PUT", token, inputToServer);
+        String s = "user/" + u.getUserID();
+        userService.editUser(s, u, new ResponseCallback<String>() {
+            @Override
+            public void success(String data) {
+                System.out.println(data);
+            }
+
+            @Override
+            public void error(int status) {
+
+            }
+        });
 
     }
 
-    public void deleteUser() {
+    protected void deleteUser() {
         int userId = 0;
 
         if (MainController.currentUser.getUserType() == true) {
@@ -84,6 +96,7 @@ public class UserController {
                 @Override
                 public void success(Boolean data) {
                     System.out.println(data);
+
                 }
 
                 @Override

@@ -1,14 +1,16 @@
-package sdk.Controller;
+package controller;
 
 import com.google.gson.Gson;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import sdk.Encrypters.Crypter;
-import sdk.Encrypters.Digester;
-import sdk.Model.User;
+import sdk.encrypters.Crypter;
+import sdk.encrypters.Digester;
+import sdk.model.User;
 import sdk.connection.Connection;
 import sdk.connection.ResponseCallback;
 import sdk.connection.ResponseParser;
+import view.BookController;
+import view.UserController;
 
 import java.io.*;
 import java.util.Scanner;
@@ -34,48 +36,56 @@ public class MainController {
     }
     public void run() {
 
-        while(currentUser == null) {
+    while (currentUser == null) {
 
-            printMenu();
-            int choice = input.nextInt();
-            if(choice == 3 || choice == 4) {
-                switch (choice) {
-                    case 3:
-                        showGuestSwitch();
-                        break;
-                    case 4:
-                        userController.createNewUser();
-                        break;
+        printMenu();
+        int choice = input.nextInt();
 
-                }
-            } else{
-                login(new ResponseCallback<String>() {
-                    @Override
-                    public void success(String data) {
-                        token = data;
-                        userController.getUserFromToken();
-                        switch(choice){
-                            case 1: if(currentUser.getUserType() == false){
-                                showUserSwitch();
-                            }
-                            break;
-                            case 2: if(currentUser.getUserType()==true) {
-                                showAdminSwitch();
-                            }
-                            break;
 
-                        }
-
-                    }
-                    @Override
-                    public void error(int status) {
-                        System.out.println("Error, status: " + status);
-
-                    }
-                });
-                }
+        if (choice == 3 || choice == 4) {
+            switch (choice) {
+                case 3:
+                    showGuestSwitch();
+                    break;
+                case 4:
+                    userController.createNewUser();
+                    break;
 
             }
+        } else if (choice == 1 || choice == 2) {
+            login(new ResponseCallback<String>() {
+                @Override
+                public void success(String data) {
+                    token = data;
+                    userController.getUserFromToken();
+                    switch (choice) {
+                        case 1:
+                            if (currentUser.getUserType() == false) {
+                                do {
+                                    showUserSwitch();
+                                }while(currentUser != null);
+                            }
+                            break;
+                        case 2:
+                            if (currentUser.getUserType() == true) {
+                                do {
+                                    showAdminSwitch();
+                                }while(currentUser != null);
+                            }
+                            break;
+                    }
+                }
+
+                @Override
+                public void error(int status) {
+                    System.out.println("Error, status: " + status);
+
+                }
+            });
+        } else {
+            System.out.println("Please enter a valid number!");
+        }
+    }
 
     }
 
@@ -83,7 +93,7 @@ public class MainController {
 
         int choice;
                 System.out.println("Welcome to usermenu \nPress 1 to find af book\nPress 2 to update your info\nPress 3 to delete your account" +
-                "\nTast 4 for at logge ud  ");
+                "\nPress 4 to log out: ");
 
         choice = input.nextInt();
 
@@ -93,11 +103,10 @@ public class MainController {
             case 2: userController.editUser();
                 break;
             case 3: userController.deleteUser();
+                currentUser = null;
                 break;
-            case 4:
+            case 4: logout();
                 break;
-
-
         }
 
     }
@@ -105,7 +114,7 @@ public class MainController {
     private void showAdminSwitch() {
 
         System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create new book" +
-                "\nPress 4 to view all books  ");
+                "\nPress 4 to view all books\nPress 5 to logout:  ");
 
         switch (input.nextInt()) {
             case 1: userController.getAllUsers();
@@ -115,6 +124,8 @@ public class MainController {
             case 3: bookController.createNewBook();
                 break;
             case 4: bookController.getAllBooks();
+                break;
+            case 5: logout();
                 break;
 
 
@@ -142,7 +153,7 @@ public class MainController {
 
         HttpPost postRequest = new HttpPost(Connection.serverURL + "user/login");
 
-        String userName, password, output;
+        String userName, password;
         boolean loginOk = false;
         input.nextLine();
 
@@ -156,8 +167,9 @@ public class MainController {
             postRequest.setHeader("Content-Type", "application/json");
             this.connection.execute(postRequest, new ResponseParser() {
                 public void payload(String json) {
-                    token = json;
-                    responseCallback.success(json);
+                    if(json != null) {
+                        responseCallback.success(json);
+                    }
                 }
                 public void error(int status) {
                     responseCallback.error(status);
@@ -171,6 +183,12 @@ public class MainController {
     }
 
     private void printMenu(){
+        System.out.println("__________               __   .___  __   ");
+        System.out.println("\\______   \\ ____   ____ |  | _|   |/  |_ ");
+        System.out.println(" |    |  _//  _ \\ /  _ \\|  |/ /   \\   __\\");
+        System.out.println(" |    |   (  <_> |  <_> )    <|   ||  |  ");
+        System.out.println(" |______  /\\____/ \\____/|__|_ \\___||__|  ");
+        System.out.println("        \\/                   \\/          ");
         System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 to continue without login\nPress 4 to create new user");
     }
 

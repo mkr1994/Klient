@@ -1,4 +1,4 @@
-package sdk.Encrypters;
+package sdk.encrypters;
 
 /**
  *

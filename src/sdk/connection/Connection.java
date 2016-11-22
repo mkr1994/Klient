@@ -34,9 +34,9 @@ public class Connection {
           return entity != null ? EntityUtils.toString(entity) : null;
         } else {
           methods.error(status);
-          String s = ""+status;
-          return s;
+
         }
+        return null;
       }
 
     };

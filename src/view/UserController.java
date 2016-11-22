@@ -1,21 +1,14 @@
-package sdk.Controller;
+package view;
 
+import controller.MainController;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import sdk.Encrypters.Crypter;
-import sdk.Encrypters.Digester;
-import sdk.Model.User;
-import sdk.ServerConnection;
+import sdk.encrypters.Digester;
+import sdk.model.User;
 import sdk.connection.ResponseCallback;
-import services.UserService;
+import sdk.services.UserService;
 
-import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
-
-import static sdk.ServerConnection.conn;
 
 /**
  * Created by magnusrasmussen on 29/10/2016.
@@ -31,7 +24,7 @@ public class UserController {
 
 
 
-    protected void editUser(){
+    public void editUser(){
         User u = MainController.currentUser;
         String newInfo;
         int choice;
@@ -74,7 +67,7 @@ public class UserController {
 
     }
 
-    protected void deleteUser() {
+    public void deleteUser() {
         int userId = 0;
 
         if (MainController.currentUser.getUserType() == true) {
@@ -84,11 +77,16 @@ public class UserController {
             System.out.println("Are you sure you want to delete tha account? Write \"yes\" to confirm" );
             if(!input.nextLine().equals("yes")){
                 userId =0;
+            } else{
+                System.out.println("You did not enter yes! Deletion cancelled...");
             }
         } else {
             System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
-            if (input.next().equals("yes"))
+            if (input.next().equals("yes")) {
                 userId = MainController.currentUser.getUserID();
+            }else{
+                System.out.println("You did not enter yes! Deletion cancelled...");
+            }
         }
         if(userId != 0) {
             String s = "user/" + userId;
@@ -107,7 +105,7 @@ public class UserController {
         }
     }
 
-    protected void getUserFromToken(){
+    public void getUserFromToken(){
 
         userService.getUserFromToken(new ResponseCallback<User>() {
             @Override
@@ -122,7 +120,7 @@ public class UserController {
         });
     }
 
-    protected void createNewUser(){
+    public void createNewUser(){
         String firstName, lastName, username, email, password;
         System.out.println("Enter your firstname: "); firstName = input.nextLine();
         System.out.println("Enter your lastname: "); lastName = input.nextLine();
@@ -145,7 +143,7 @@ public class UserController {
             }
         });
     }
-    protected void getAllUsers(){
+    public void getAllUsers(){
          boolean s;
 
         userService.getAll(new ResponseCallback<ArrayList<User>>() {

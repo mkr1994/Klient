@@ -1,4 +1,4 @@
-package services;
+package sdk.services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -7,10 +7,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import sdk.Controller.MainController;
-import sdk.Encrypters.Crypter;
-import sdk.Model.Book;
-import sdk.Model.User;
+import controller.MainController;
+import sdk.encrypters.Crypter;
+import sdk.model.User;
 import sdk.connection.Connection;
 import sdk.connection.ResponseCallback;
 import sdk.connection.ResponseParser;

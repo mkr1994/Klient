@@ -1,18 +1,13 @@
-package sdk.Controller;
+package view;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import sdk.Encrypters.Crypter;
-import sdk.Model.Book;
-import sdk.Model.Curriculum;
+import sdk.model.Book;
+import sdk.model.Curriculum;
 import sdk.connection.ResponseCallback;
-import services.BookService;
+import sdk.services.BookService;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -37,7 +32,7 @@ public class BookController  {
 
 
     }
-    protected void createNewBook(){
+    public void createNewBook(){
         String publisher = null, title = null, author = null;
         double priceAB =0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
         int version = 0;
@@ -150,7 +145,7 @@ public class BookController  {
         return curriculumID;
     }
 
-    protected void getBooksFromCurriculum(){
+    public void getBooksFromCurriculum(){
         getAllCurriculums();
         bookService.getBooksFromCurriculum(new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
@@ -176,7 +171,7 @@ public class BookController  {
             }
         });
     }
-    protected void getAllBooks() {
+    public void getAllBooks() {
         bookService.getAll(new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
                 int i =1;

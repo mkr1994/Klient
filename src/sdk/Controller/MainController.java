@@ -57,7 +57,8 @@ public class MainController {
                 loginNew(new ResponseCallback<String>() {
                     @Override
                     public void success(String data) {
-                        userController.getUserFromToken(data);
+                        token = data;
+                        userController.getUserFromToken();
                         switch(choice){
                             case 1: if(currentUser.getUserType() == false){
                                 showUserSwitch();
@@ -112,7 +113,7 @@ public class MainController {
                 "\nPress 4 to view all books  ");
 
         switch (input.nextInt()) {
-            case 1: userController.getAllUsers(token);
+            case 1: userController.getAllUsers();
                 break;
             case 2: userController.deleteUser(token);
                 break;

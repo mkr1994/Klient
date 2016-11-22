@@ -7,6 +7,8 @@ import sdk.Encrypters.Crypter;
 import sdk.Encrypters.Digester;
 import sdk.Model.User;
 import sdk.ServerConnection;
+import sdk.connection.ResponseCallback;
+import services.UserService;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class UserController {
     private Scanner input = new Scanner(System.in);
 
     private Gson gson = new Gson();
+    private UserService userService = new UserService();
 
 
     protected void editUser(String token){
@@ -64,10 +67,9 @@ public class UserController {
         String output;
 
         if(MainController.currentUser.getUserType() == true){
-            if(getAllUsers(token)) {
+
                 System.out.println("Pleaser enter number on the user you wish to delete: ");
                 userId = input.nextInt();
-            }
         } else{
             System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
             if(input.next().equals("yes"))
@@ -101,97 +103,63 @@ public class UserController {
         }
     }
 
+    protected void getUserFromToken(){
 
-    protected void getUserFromToken(String token){
-        String output = null;
-        BufferedReader br = null;
-        try {
-
-            ServerConnection.openServerConnectionWithToken("user/fromToken", "GET", token);
-
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
+        userService.getUserFromToken(new ResponseCallback<User>() {
+            @Override
+            public void success(User data) {
+                MainController.currentUser = data;
             }
 
-            br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
+            @Override
+            public void error(int status) {
 
-           output = br.readLine();
-            output = Crypter.encryptDecryptXOR(output);
-            MainController.currentUser = (gson.fromJson(output, User.class));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
+            }
+        });
     }
 
-
-    protected void createNewUser() {
-        String firstName, lastName, username, email, password, output;
-       // input.nextLine();
+    protected void createNewUser(){
+        String firstName, lastName, username, email, password;
         System.out.println("Enter your firstname: "); firstName = input.nextLine();
         System.out.println("Enter your lastname: "); lastName = input.nextLine();
         System.out.println("Enter your username: "); username = input.next();
         System.out.println("Enter your email: "); email = input.next();
         System.out.println("Enter your password: "); password = input.next();
 
-        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(firstName, lastName, username, email, password, false)));
+        User user = new User(firstName, lastName, username, email, password, false);
 
-        MainController.setPostConnection("user", "POST", null, inputToServer);
+        userService.create(user, new ResponseCallback<String>() {
+            @Override
+            public void success(String data) {
+                System.out.println(data);
+            }
+
+            @Override
+            public void error(int status) {
+                System.out.println(status);
+
+            }
+        });
     }
+    protected void getAllUsers(){
+         boolean s;
 
+        userService.getAll(new ResponseCallback<ArrayList<User>>() {
 
-    protected boolean getAllUsers(String token){
-        String output = null;
-        BufferedReader br = null;
-        boolean requestSuccess = false;
-        try {
-
-            ServerConnection.openServerConnectionWithToken("user", "GET", token);
-
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
+            @Override
+            public void success(ArrayList<User> users) {
+                // Header for showing users
+                System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
+                for(User user : users){
+                    System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
+                }
             }
 
-            br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
+            @Override
+            public void error(int status) {
 
-            StringBuilder builder = new StringBuilder();
-            String aux = "";
-
-            while ((aux = br.readLine()) != null) {
-                builder.append(aux + "\n");
             }
-            output = builder.toString();
-            output = Crypter.encryptDecryptXOR(output);
-
-            JsonReader reader = new JsonReader(new StringReader(output));
-            reader.setLenient(true);
-
-
-            ArrayList<User> users = gson.fromJson(reader, new TypeToken<List<User>>(){}.getType());
-
-            // Header for showing users
-            System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
-            for(User user : users){
-                System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
-            }
-            requestSuccess = true;
-
-        } catch (Exception e) {
-            System.out.println("An error occurred. Please login again." + e.getMessage());
-            requestSuccess = false;
-
-        }
-
-        return requestSuccess;
-
+        });
     }
 
 }

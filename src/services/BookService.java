@@ -31,6 +31,7 @@ public class BookService {
 
     public void create(Book book, final ResponseCallback<String> responseCallback) {
         HttpPost postRequest = new HttpPost(Connection.serverURL + "book");
+
         try {
             StringEntity bookString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(book)));
             postRequest.setEntity(bookString);

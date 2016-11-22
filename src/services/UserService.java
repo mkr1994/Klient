@@ -2,6 +2,7 @@ package services;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -27,6 +28,31 @@ public class UserService {
         this.gson = new Gson();
     }
 
+    public void deleteUser(String s, final ResponseCallback<Boolean> responseCallback) {
+        HttpDelete deleteRequest = new HttpDelete(Connection.serverURL + s);
+        try {
+            deleteRequest.setHeader("authorization", MainController.token);
+            deleteRequest.setHeader("Content-Type", "application/json");
+
+            this.connection.execute(deleteRequest, new ResponseParser() {
+                public void payload(String json) {
+                    boolean bool = false;
+                    if (json != null){
+                        bool = true;
+                    }
+                    responseCallback.success(bool);
+                }
+
+                public void error(int status) {
+                    responseCallback.error(status);
+                }
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getUserFromToken(final ResponseCallback<User> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user/fromToken");
 
@@ -36,7 +62,6 @@ public class UserService {
             public void payload(String json) {
                 User user = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<User>() {
                 }.getType());
-                System.out.println(user.getFirstName());
                 responseCallback.success(user);
             }
 

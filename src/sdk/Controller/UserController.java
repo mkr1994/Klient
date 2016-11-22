@@ -62,44 +62,35 @@ public class UserController {
 
     }
 
-    protected void deleteUser(String token){
+    public void deleteUser() {
         int userId = 0;
-        String output;
 
-        if(MainController.currentUser.getUserType() == true){
-
-                System.out.println("Pleaser enter number on the user you wish to delete: ");
-                userId = input.nextInt();
-        } else{
+        if (MainController.currentUser.getUserType() == true) {
+            getAllUsers();
+            System.out.println("Pleaser enter id on the user you wish to delete: ");
+            userId = input.nextInt();
+            System.out.println("Are you sure you want to delete tha account? Write \"yes\" to confirm" );
+            if(!input.nextLine().equals("yes")){
+                userId =0;
+            }
+        } else {
             System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
-            if(input.next().equals("yes"))
-             userId = MainController.currentUser.getUserID();
+            if (input.next().equals("yes"))
+                userId = MainController.currentUser.getUserID();
         }
-
         if(userId != 0) {
             String s = "user/" + userId;
-
-            try {
-                ServerConnection.openServerConnectionWithToken(s, "DELETE", token);
-
-                if (conn.getResponseCode() != 200) {
-                    throw new RuntimeException("Failed : HTTP error code : "
-                            + conn.getResponseCode());
+            userService.deleteUser(s, new ResponseCallback<Boolean>() {
+                @Override
+                public void success(Boolean data) {
+                    System.out.println(data);
                 }
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        (conn.getInputStream())));
-
-
-                System.out.println("Output from Server .... \n");
-                while ((output = br.readLine()) != null) {
-                    System.out.println(output);
+                @Override
+                public void error(int status) {
+                    System.out.println(status);
                 }
-
-                conn.disconnect();
-            } catch (Exception e) {
-                System.out.println("An error occurred! " + e.getMessage());
-            }
+            });
         }
     }
 
@@ -113,7 +104,7 @@ public class UserController {
 
             @Override
             public void error(int status) {
-
+                System.out.println(status);
             }
         });
     }

@@ -97,7 +97,7 @@ public class MainController {
                 break;
             case 2: userController.editUser(token);
                 break;
-            case 3: userController.deleteUser(token);
+            case 3: userController.deleteUser();
                 break;
             case 4:
                 break;
@@ -115,7 +115,7 @@ public class MainController {
         switch (input.nextInt()) {
             case 1: userController.getAllUsers();
                 break;
-            case 2: userController.deleteUser(token);
+            case 2: userController.deleteUser();
                 break;
             case 3: bookController.createNewBook();
                 break;

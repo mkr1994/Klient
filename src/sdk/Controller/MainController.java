@@ -27,7 +27,7 @@ public class MainController {
     private Scanner input;
     private Gson gson;
     public static User currentUser;
-    private String token;
+    public static String token;
     private Connection connection;
 
     public MainController(){
@@ -116,7 +116,7 @@ public class MainController {
                 break;
             case 2: userController.deleteUser(token);
                 break;
-            case 3: bookController.createNewBook(token);
+            case 3: bookController.createNewBook();
                 break;
             case 4: bookController.getAllBooks();
                 break;
@@ -220,6 +220,7 @@ public class MainController {
             postRequest.setHeader("Content-Type", "application/json");
             this.connection.execute(postRequest, new ResponseParser() {
                 public void payload(String json) {
+                    token = json;
                     responseCallback.success(json);
                 }
                 public void error(int status) {
@@ -231,51 +232,6 @@ public class MainController {
         } catch (UnsupportedEncodingException e) {
             System.out.println("An error occurred!");
         }
-    }
-
-
-    private boolean login()  {
-        String userName, password, output;
-        boolean loginOk = false;
-        input.nextLine();
-
-        System.out.println("Please enter username: "); userName = input.nextLine();
-        System.out.println("Please enter password: "); password = input.nextLine();
-
-
-        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new User(userName, Digester.hashWithSalt(password))));
-
-        try {
-            ServerConnection.openServerConnectionWithoutToken("user/login", "POST");
-
-        OutputStream os = conn.getOutputStream();
-        os.write(inputToServer.getBytes());
-        os.flush();
-        int i = conn.getResponseCode();
-        if (conn.getResponseCode() != 200) {
-            System.out.println("Failed : HTTP error code : "
-                    + conn.getResponseCode());
-
-        } else{
-            loginOk = true;
-        }
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (conn.getInputStream())));
-        while ((output = br.readLine()) != null) {
-            token = output;
-
-        }
-
-        conn.disconnect();
-        } catch (Exception e) {
-            System.out.println("An error occurred!");
-        }
-        if(loginOk) {
-            userController.getUserFromToken(token);
-        }
-
-        return loginOk;
     }
 
     private void printMenu(){

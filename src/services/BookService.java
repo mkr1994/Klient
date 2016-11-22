@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import sdk.Controller.BookController;
+import sdk.Controller.MainController;
 import sdk.Encrypters.Crypter;
 import sdk.Model.Curriculum;
 import sdk.connection.Connection;
@@ -26,6 +27,29 @@ public class BookService {
     public BookService() {
         this.connection = new Connection();
         this.gson = new Gson();
+    }
+
+    public void create(Book book, final ResponseCallback<String> responseCallback) {
+        HttpPost postRequest = new HttpPost(Connection.serverURL + "book");
+        try {
+            StringEntity bookString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(book)));
+            postRequest.setEntity(bookString);
+            postRequest.setHeader("authorization", MainController.token);
+            postRequest.setHeader("Content-Type", "application/json");
+
+            this.connection.execute(postRequest, new ResponseParser() {
+                public void payload(String json) {
+                    responseCallback.success(json);
+                }
+
+                public void error(int status) {
+                    responseCallback.error(status);
+                }
+            });
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public void getBooksFromCurriculum(final ResponseCallback<ArrayList<Book>> responseCallback){

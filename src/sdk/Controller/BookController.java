@@ -37,9 +37,7 @@ public class BookController  {
 
 
     }
-
-    protected void createNewBook(String token){
-        String output;
+    protected void createNewBook(){
         String publisher = null, title = null, author = null;
         double priceAB =0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
         int version = 0;
@@ -67,12 +65,22 @@ public class BookController  {
             input.nextLine();
         }while(!inputOk);
 
-        String inputToServer = Crypter.encryptDecryptXOR(new Gson().toJson(new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID)));
+        Book book = new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID);
 
-        MainController.setPostConnection("book", "POST", token, inputToServer);
+        bookService.create(book, new ResponseCallback<String>() {
+            @Override
+            public void success(String data) {
+                System.out.println(data);
+            }
+
+            @Override
+            public void error(int status) {
+                System.out.println("Sorry, somthing went wrong! Error code: " + status);
+
+            }
+        });
 
     }
-
     protected void getAllCurriculums(){
 
         bookService.getAllCurriculums(new ResponseCallback<ArrayList<Curriculum>>() {
@@ -86,26 +94,12 @@ public class BookController  {
         });
 
     }
-
-/*
-    protected ArrayList<Curriculum> getAllCurriculums(){
-
-        String output = MainController.setGetConnection("curriculum", "GET");
-
-        JsonReader reader = new JsonReader(new StringReader(output));
-        reader.setLenient(true);
-        int i = 1;
-        ArrayList<Curriculum> curriculums;
-        curriculums = gson.fromJson(reader, new TypeToken<List<Curriculum>>(){}.getType());
-
-        return curriculums;
-    }
-*/
     protected int extractCurriculumID(ArrayList<Curriculum> curriculumArrayList){
 
         int i = 1, j= 1, choice;
         ArrayList<String> strings = new ArrayList();
         ArrayList<Integer> b = new ArrayList();
+
         for(Curriculum c : curriculumArrayList){
             if(!strings.contains(c.getSchool())){
                 System.out.println("Nr:  "+ j + " " + c.getSchool());
@@ -122,6 +116,7 @@ public class BookController  {
         int finalChoice = choice;
         curriculumArrayList.removeIf(Curriculum -> !Curriculum.getSchool().contains(strings.get(finalChoice))); //fra http://stackoverflow.com/questions/9146224/arraylist-filter
         strings.clear();
+
         for(Curriculum c : curriculumArrayList){
             if(!strings.contains(c.getEducation())){
                 System.out.println("Nr: " + j + " "+ c.getEducation());
@@ -138,8 +133,6 @@ public class BookController  {
         int finalChoice2 = choice;
         curriculumArrayList.removeIf(Curriculum -> !Curriculum.getEducation().contains(strings.get(finalChoice2)));
 
-
-
         for(Curriculum c : curriculumArrayList){
             if(!b.contains(c.getSemester())){
                 System.out.printf("\nNr: %d: " + c.getSemester(), j);
@@ -153,8 +146,6 @@ public class BookController  {
         curriculumID = input.nextInt();
         curriculumID--;
         curriculumID = curriculumArrayList.get(curriculumID).getCurriculumID();
-
-        System.out.println(curriculumID);
         input.nextLine();
         return curriculumID;
     }
@@ -181,6 +172,7 @@ public class BookController  {
             }
             public void error(int status) {
 
+                System.out.println("Sorry, an error occurred! Error code: " + status);
             }
         });
     }
@@ -198,10 +190,10 @@ public class BookController  {
             }
             public void error(int status) {
 
+                System.out.println("Sorry, an error occurred! Error code: " + status);
+
             }
         });
     }
-
-
 
 }

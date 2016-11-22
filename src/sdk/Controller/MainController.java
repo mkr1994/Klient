@@ -1,13 +1,11 @@
 package sdk.Controller;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import sdk.Encrypters.Crypter;
 import sdk.Encrypters.Digester;
-import sdk.Model.Book;
+import sdk.Model.Curriculum;
 import sdk.Model.User;
 import sdk.ServerConnection;
 import sdk.connection.Connection;
@@ -41,44 +39,12 @@ public class MainController {
     }
     public void run() {
 
-
-       /* getAll(new ResponseCallback<ArrayList<Book>>() {
-            public void success(ArrayList<Book> users) {
-
-                for(Book user: users){
-                    System.out.println(user.getTitle());
-                }
-
-            }
-
-            public void error(int status) {
-
-            }
-        });
-*/
-
         while(currentUser == null) {
 
             printMenu();
             int choice = input.nextInt();
             if(choice == 3 || choice == 4) {
                 switch (choice) {
-              /*  case 1:
-                    if(login()) {
-                        if (currentUser.getUserType() == false) {
-                            showUserSwitch();
-                        } else if(currentUser.getUserType() == true) {
-                            System.out.println("You are not an admin!");
-                            userController.editUser(token);
-                        }
-                    } else {
-                        System.out.println("Wrong username or password!");
-                    }
-                    break;
-                case 2: if(login() && currentUser.getUserType()==true) {
-                    showAdminSwitch();
-                }
-                    break;*/
                     case 3:
                         showGuestSwitch();
                         break;
@@ -234,22 +200,7 @@ public class MainController {
         return output;
     }
 
-    public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback){
-        HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
 
-        this.connection.execute(getRequest, new ResponseParser() {
-            public void payload(String json) {
-                ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
-                }.getType());
-                responseCallback.success(books);
-            }
-
-            public void error(int status) {
-
-                responseCallback.error(status);
-            }
-        });
-    }
 
     public void loginNew(final ResponseCallback<String> responseCallback){
 

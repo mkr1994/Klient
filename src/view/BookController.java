@@ -1,6 +1,5 @@
 package view;
 
-import com.google.gson.Gson;
 import sdk.model.Book;
 import sdk.model.Curriculum;
 import sdk.connection.ResponseCallback;
@@ -13,28 +12,20 @@ import java.util.Scanner;
 /**
  * Created by magnusrasmussen on 29/10/2016.
  */
-public class BookController  {
+public class BookController {
 
     private Scanner input;
-    private Gson gson;
     private BookService bookService;
     public static int curriculumID;
-    public BookController(){
+
+    public BookController() {
         this.input = new Scanner(System.in);
-        this.gson = new Gson();
         this.bookService = new BookService();
     }
 
-
-    protected void addBookToCurriculum(int curriculumID){
-
-
-
-
-    }
-    public void createNewBook(){
+    public void createNewBook() {
         String publisher = null, title = null, author = null;
-        double priceAB =0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
+        double priceAB = 0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
         int version = 0;
         boolean inputOk = false;
 
@@ -44,21 +35,29 @@ public class BookController  {
 
         do {
             try {
-                System.out.println("Enter title: "); title = input.nextLine();
-                System.out.println("Enter author: "); author = input.nextLine();
-                System.out.println("Enter publisher: "); publisher = input.nextLine();
-                System.out.println("Enter version: "); version = input.nextInt();
-                System.out.println("Enter book ISBN:");ISBN = input.nextDouble();
-                System.out.println("Enter price at Amazon: "); priceAB = input.nextDouble();
-                System.out.println("Enter price at SAXO:"); priceSAXO = input.nextDouble();
-                System.out.println("Enter price at CDON:"); priceCDON = input.nextDouble();
+                System.out.println("Enter title: ");
+                title = input.nextLine();
+                System.out.println("Enter author: ");
+                author = input.nextLine();
+                System.out.println("Enter publisher: ");
+                publisher = input.nextLine();
+                System.out.println("Enter version: ");
+                version = input.nextInt();
+                System.out.println("Enter book ISBN:");
+                ISBN = input.nextDouble();
+                System.out.println("Enter price at Amazon: ");
+                priceAB = input.nextDouble();
+                System.out.println("Enter price at SAXO:");
+                priceSAXO = input.nextDouble();
+                System.out.println("Enter price at CDON:");
+                priceCDON = input.nextDouble();
                 inputOk = true;
             } catch (InputMismatchException e) {
                 System.out.println("Seems like you entered a bad value! Please try again!");
                 inputOk = false;
             }
             input.nextLine();
-        }while(!inputOk);
+        } while (!inputOk);
 
         Book book = new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID);
 
@@ -70,119 +69,143 @@ public class BookController  {
 
             @Override
             public void error(int status) {
-                System.out.println("Sorry, somthing went wrong! Error code: " + status);
+                System.out.println("Sorry, something went wrong! Error code: " + status);
 
             }
         });
 
     }
-    protected void getAllCurriculums(){
+
+    protected void getAllCurriculums() {
 
         bookService.getAllCurriculums(new ResponseCallback<ArrayList<Curriculum>>() {
             public void success(ArrayList<Curriculum> curriculum) {
-              extractCurriculumID(curriculum);
+                extractCurriculumID(curriculum);
 
             }
-        public void error(int status) {
 
-        }
+            public void error(int status) {
+                System.out.println(status);
+            }
         });
 
     }
-    protected int extractCurriculumID(ArrayList<Curriculum> curriculumArrayList){
 
-        int i = 1, j= 1, choice;
+    private int extractCurriculumID(ArrayList<Curriculum> curriculumArrayList) {
+
+        int j = 1, choice;
         ArrayList<String> strings = new ArrayList();
-        ArrayList<Integer> b = new ArrayList();
 
-        for(Curriculum c : curriculumArrayList){
-            if(!strings.contains(c.getSchool())){
-                System.out.println("Nr:  "+ j + " " + c.getSchool());
+        for (Curriculum c : curriculumArrayList) {
+            if (!strings.contains(c.getSchool())) {
+                System.out.println("Number " + j + ":\t " + c.getSchool());
                 strings.add(c.getSchool());
                 j++;
-            } else if (strings.size() == 0){
+            } else if (strings.size() == 0) {
                 strings.add(c.getSchool());
             }
         }
-        j = 1;
-        System.out.println("Choose number on Institution:");
-        choice = input.nextInt();
-        choice--;
-        int finalChoice = choice;
+
+        do {
+            System.out.println("Enter number on institution:");
+            choice = input.nextInt();
+        } while (choice > strings.size());
+        int finalChoice = --choice;
         curriculumArrayList.removeIf(Curriculum -> !Curriculum.getSchool().contains(strings.get(finalChoice))); //fra http://stackoverflow.com/questions/9146224/arraylist-filter
         strings.clear();
 
-        for(Curriculum c : curriculumArrayList){
-            if(!strings.contains(c.getEducation())){
-                System.out.println("Nr: " + j + " "+ c.getEducation());
+        j = 1;
+        for (Curriculum c : curriculumArrayList) {
+            if (!strings.contains(c.getEducation())) {
+                System.out.println("Number " + j + ":\t " + c.getEducation());
                 strings.add(c.getEducation());
                 j++;
-            } else if (strings.size() == 0){
+            } else if (strings.size() == 0) {
                 strings.add(c.getEducation());
             }
         }
-        j = 1;
-        System.out.println("Enter number on education: ");
-        choice = input.nextInt();
-        choice--;
-        int finalChoice2 = choice;
+        do {
+            System.out.println("Enter number on education: ");
+            choice = input.nextInt();
+        } while (choice > strings.size());
+
+        int finalChoice2 = --choice;
         curriculumArrayList.removeIf(Curriculum -> !Curriculum.getEducation().contains(strings.get(finalChoice2)));
 
-        for(Curriculum c : curriculumArrayList){
-            if(!b.contains(c.getSemester())){
-                System.out.printf("\nNr: %d: " + c.getSemester(), j);
-                b.add(c.getSemester());
-                j++;
-            } else if (b.size() == 0){
-                b.add(c.getSemester());
+        boolean semesterFound = false;
+        do {
+            System.out.println("\nEnter number on semester:");
+            int semesterChoice = input.nextInt();
+            for (int f = 0; f < curriculumArrayList.size(); f++) {
+                if (curriculumArrayList.get(f).getSemester() == semesterChoice) {
+                    System.out.println(curriculumArrayList.get(f).getCurriculumID());
+                    curriculumID = curriculumArrayList.get(f).getCurriculumID();
+                    semesterFound = true;
+                    break;
+                }
+
             }
-        }
-        System.out.println("\nEnter number on semester:");
-        curriculumID = input.nextInt();
-        curriculumID--;
-        curriculumID = curriculumArrayList.get(curriculumID).getCurriculumID();
+            if (!semesterFound) {
+                System.out.println("Seems like you entered a semester that doesn't exists yet! Only the following semesters are available for your education:");
+                for (Curriculum c : curriculumArrayList) {
+                    System.out.print("\n" + c.getSemester());
+                }
+                System.out.println("Please try again!");
+            }
+        } while (!semesterFound);
         input.nextLine();
         return curriculumID;
     }
 
-    public void getBooksFromCurriculum(){
+    public void getBooksFromCurriculum() {
         getAllCurriculums();
         bookService.getBooksFromCurriculum(new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
+                boolean continueInput = false;
                 int bookToGetInfo;
-                int i =1;
-                // Header i bogvisning
-                System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.",  "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
-                for(Book book : books){
-                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB());
-                    i++;
-                }
 
-                System.out.println("Enter number on book you wish to retrieve price info: ");
-                bookToGetInfo = input.nextInt();
-                bookToGetInfo--;
+                do {
+                    int i = 1;
+                    // Header
+                    System.out.printf("%-7s %-55s %-80s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:");
+                    for (Book book : books) {
+                        System.out.printf("%-7d %-55s %-80s %-25.0f\n", i, book.getTitle(), book.getAuthor(), book.getISBN());
+                        i++;
+                    }
 
-                System.out.printf("You have chosen: \n%-30s Price at Amazon: %-30.2f kr. Price at CDON: %-30.2f kr. Price at SAXO: %-30.2f kr.", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
+                    System.out.println("Enter number on book you wish to retrieve price info: ");
+                    bookToGetInfo = input.nextInt();
+                    bookToGetInfo--;
+                    System.out.printf("You have chosen: \n\"%-30s\" \nPrice at Amazon: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
 
+                    System.out.println("Do you wish to get price info on another book? Press 1 for for yes. Press 2 for no");
+                    if (input.nextInt() == 1) {
+                        continueInput = true;
+                    } else {
+                        continueInput = false;
+                    }
+                } while (continueInput);
             }
+
             public void error(int status) {
 
                 System.out.println("Sorry, an error occurred! Error code: " + status);
             }
         });
     }
+
     public void getAllBooks() {
         bookService.getAll(new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
-                int i =1;
-                // Header i bogvisning
-                System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.",  "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
-                for(Book book : books){
-                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f\n", i,  book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB());
+                int i = 1;
+                // Header
+                System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
+                for (Book book : books) {
+                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f\n", i, book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB());
                     i++;
                 }
-
             }
+
             public void error(int status) {
 
                 System.out.println("Sorry, an error occurred! Error code: " + status);
@@ -190,5 +213,4 @@ public class BookController  {
             }
         });
     }
-
 }

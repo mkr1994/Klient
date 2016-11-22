@@ -52,6 +52,7 @@ public class UserService {
             e.printStackTrace();
         }
     }
+
     public void deleteUser(String s, final ResponseCallback<Boolean> responseCallback) {
         HttpDelete deleteRequest = new HttpDelete(Connection.serverURL + s);
         try {
@@ -61,7 +62,7 @@ public class UserService {
             this.connection.execute(deleteRequest, new ResponseParser() {
                 public void payload(String json) {
                     boolean bool = false;
-                    if (json != null){
+                    if (json != null) {
                         bool = true;
                     }
                     responseCallback.success(bool);
@@ -118,7 +119,7 @@ public class UserService {
         }
     }
 
-    public void getAll(final ResponseCallback<ArrayList<User>> responseCallback){
+    public void getAll(final ResponseCallback<ArrayList<User>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user");
 
         getRequest.setHeader("authorization", MainController.token);

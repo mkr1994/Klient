@@ -1,4 +1,5 @@
 package sdk.services;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.HttpGet;
@@ -53,8 +54,8 @@ public class BookService {
         }
     }
 
-    public void getBooksFromCurriculum(final ResponseCallback<ArrayList<Book>> responseCallback){
-        HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum/"+ BookController.curriculumID+"/books");
+    public void getBooksFromCurriculum(final ResponseCallback<ArrayList<Book>> responseCallback) {
+        HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum/" + BookController.curriculumID + "/books");
 
         this.connection.execute(getRequest, new ResponseParser() {
             public void payload(String json) {
@@ -71,7 +72,7 @@ public class BookService {
     }
 
 
-    public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback){
+    public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
 
         this.connection.execute(getRequest, new ResponseParser() {
@@ -88,7 +89,7 @@ public class BookService {
         });
     }
 
-    public void getAllCurriculums(final ResponseCallback<ArrayList<Curriculum>> responseCallback){
+    public void getAllCurriculums(final ResponseCallback<ArrayList<Curriculum>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum");
 
         this.connection.execute(getRequest, new ResponseParser() {

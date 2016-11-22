@@ -38,8 +38,7 @@ public class MainController {
 
     while (currentUser == null) {
 
-
-            printMenu();
+        printMenu();
         try {
             int choice = input.nextInt();
 
@@ -88,10 +87,11 @@ public class MainController {
                 System.out.println("Please enter a valid number!");
             }
         }catch(Exception e){
-            System.out.println("A serious error occurred!");
+            System.out.println("A serious error occurred! Please login again! ");
             logout();
             input.next();
         }
+
     }
 
     }

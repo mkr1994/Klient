@@ -1,5 +1,6 @@
 package view;
 
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import controller.MainController;
 import com.google.gson.Gson;
 import sdk.encrypters.Digester;
@@ -32,7 +33,7 @@ public class UserController {
 
         // Header for showing userinfo
         System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Password:");
-        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*******");
+        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*********");
 
         System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel"); choice = input.nextInt();
         input.nextLine();
@@ -66,8 +67,13 @@ public class UserController {
                     }
                 }while(tries < 3);
                 break;
+            case 6:
+                fireRequest = false;
+                break;
             default:
                 System.out.println("Wrong input");
+                fireRequest = false;
+                break;
 
         }
 
@@ -147,34 +153,41 @@ public class UserController {
         String firstName, lastName, username, email, password;
         System.out.println("Enter your firstname: "); firstName = input.nextLine();
         System.out.println("Enter your lastname: "); lastName = input.nextLine();
-        System.out.println("Enter your username: "); username = input.next();
+        System.out.println("Enter your username: "); username = input.nextLine();
         System.out.println("Enter your email: "); email = input.next();
         System.out.println("Enter your password: "); password = input.next();
 
         User user = new User(firstName, lastName, username, email, password, false);
 
-        userService.create(user, new ResponseCallback<String>() {
-            @Override
-            public void success(String data) {
-                System.out.println(data);
-            }
+        System.out.println("Are you sure that you want to create a new user with the following details:");
+        System.out.printf("%-30s %-30s %-25s %-25s %-15s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Admin status:");
+        System.out.printf("%-30s %-30s %-25s %-25s %-15b\n", user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
+        System.out.println("Enter \"yes\" to confirm:");
+        if(input.next().equals("yes")) {
+            userService.create(user, new ResponseCallback<String>() {
+                @Override
+                public void success(String data) {
+                    System.out.println(data);
+                }
 
-            @Override
-            public void error(int status) {
-                System.out.println(status);
+                @Override
+                public void error(int status) {
+                    System.out.println(status);
 
-            }
-        });
+                }
+            });
+        } else{
+            System.out.println("You didn't enter yes. Returning to main menu");
+        }
+        input.nextLine();
     }
     public void getAllUsers(){
-         boolean s;
-
         userService.getAll(new ResponseCallback<ArrayList<User>>() {
 
             @Override
             public void success(ArrayList<User> users) {
                 // Header for showing users
-                System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "Bruger ID:",  "Brugernavn:", "Fornavn:", "Efternavn:", "Email:", "Admin status:");
+                System.out.printf("%-15s %-30s %-30s %-25s %-25s %-15s\n", "User ID:",  "Username:", "Firstname:", "Lastname:", "Email:", "Admin status:");
                 for(User user : users){
                     System.out.printf("%-15d %-30s %-30s %-25s %-25s %-15b\n", user.getUserID(),  user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
                 }

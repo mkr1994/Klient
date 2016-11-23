@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import sdk.connection.CachedData;
 import view.BookController;
 import controller.MainController;
 import sdk.encrypters.Crypter;
@@ -24,10 +25,11 @@ public class BookService {
 
     private Connection connection;
     private Gson gson;
-
+    CachedData cachedData;
     public BookService() {
         this.connection = new Connection();
         this.gson = new Gson();
+        this.cachedData = new CachedData();
     }
 
     public void create(Book book, final ResponseCallback<String> responseCallback) {
@@ -74,19 +76,24 @@ public class BookService {
 
     public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
+       // CachedData cachedData = new CachedData();
+        if(cachedData.getBookArrayList().size() > 0) {
+            responseCallback.success(cachedData.getBookArrayList());
+        }else {
+            this.connection.execute(getRequest, new ResponseParser() {
+                public void payload(String json) {
+                    ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
+                    }.getType());
+                    cachedData.setBookArrayList(books);
+                    responseCallback.success(books);
+                }
 
-        this.connection.execute(getRequest, new ResponseParser() {
-            public void payload(String json) {
-                ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
-                }.getType());
-                responseCallback.success(books);
-            }
+                public void error(int status) {
 
-            public void error(int status) {
-
-                responseCallback.error(status);
-            }
-        });
+                    responseCallback.error(status);
+                }
+            });
+        }
     }
 
     public void getAllCurriculums(final ResponseCallback<ArrayList<Curriculum>> responseCallback) {

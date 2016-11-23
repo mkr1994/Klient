@@ -1,5 +1,6 @@
 package view;
 
+import sdk.connection.CachedData;
 import sdk.model.Book;
 import sdk.model.Curriculum;
 import sdk.connection.ResponseCallback;
@@ -17,10 +18,12 @@ public class BookController {
     private Scanner input;
     private BookService bookService;
     public static int curriculumID;
+    public CachedData cachedData;
 
     public BookController() {
         this.input = new Scanner(System.in);
         this.bookService = new BookService();
+        this.cachedData = new CachedData();
     }
 
     public void createNewBook() {
@@ -150,7 +153,7 @@ public class BookController {
                 for (Curriculum c : curriculumArrayList) {
                     System.out.print("\n" + c.getSemester());
                 }
-                System.out.println("Please try again!");
+                System.out.println("Please try again or contact your admin if you wish to have your semester on the list!");
             }
         } while (!semesterFound);
         input.nextLine();
@@ -176,7 +179,7 @@ public class BookController {
                     System.out.println("Enter number on book you wish to retrieve price info: ");
                     bookToGetInfo = input.nextInt();
                     bookToGetInfo--;
-                    System.out.printf("You have chosen: \n\"%-30s\" \nPrice at Amazon: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
+                    System.out.printf("You have chosen: \n\"%s\" \nPrice at Amazon: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
 
                     System.out.println("Do you wish to get price info on another book? Press 1 for for yes. Press 2 for no");
                     if (input.nextInt() == 1) {
@@ -197,6 +200,7 @@ public class BookController {
     public void getAllBooks() {
         bookService.getAll(new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
+                cachedData.setBookArrayList(books);
                 int i = 1;
                 // Header
                 System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");

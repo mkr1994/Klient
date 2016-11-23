@@ -201,8 +201,8 @@ public class MainController {
 
     private void printMenu(int i) {
         if (i == 1) {
-            System.out.println("__________               __   .___  __   ");
-            System.out.println("\\______   \\ ____   ____ |  | _|   |/  |_ ");
+            System.out.println("__________               __   .___  __   "); //All credit to Gerishanth Sivakumar mester #2
+            System.out.println("\\______   \\ ____   ____ |  | _|   |/  |_ "); //Geri linkedIn: https://www.linkedin.com/in/gerish?authType=NAME_SEARCH&authToken=nQES&locale=da_DK&trk=tyah&trkInfo=clickedVertical%3Amynetwork%2CclickedEntityId%3A364885753%2CauthType%3ANAME_SEARCH%2Cidx%3A1-1-1%2CtarId%3A1479907877108%2Ctas%3Ageri
             System.out.println(" |    |  _//  _ \\ /  _ \\|  |/ /   \\   __\\");
             System.out.println(" |    |   (  <_> |  <_> )    <|   ||  |  ");
             System.out.println(" |______  /\\____/ \\____/|__|_ \\___||__|  ");

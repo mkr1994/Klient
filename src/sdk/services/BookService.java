@@ -77,7 +77,7 @@ public class BookService {
     public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
        // CachedData cachedData = new CachedData();
-        if(cachedData.getBookArrayList().size() > 0) {
+        if(CachedData.bookArrayList.size() > 0) {
             responseCallback.success(cachedData.getBookArrayList());
         }else {
             this.connection.execute(getRequest, new ResponseParser() {

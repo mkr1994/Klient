@@ -3,6 +3,8 @@ package controller;
 import com.google.gson.Gson;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.cache.CacheConfig;
+import sdk.connection.CachedData;
 import sdk.encrypters.Crypter;
 import sdk.encrypters.Digester;
 import sdk.model.User;
@@ -25,6 +27,7 @@ public class MainController {
     public static User currentUser;
     public static String token;
     private Connection connection;
+    private static CachedData cachedData = new CachedData();
 
     public MainController() {
         this.bookController = new BookController();
@@ -224,6 +227,8 @@ public class MainController {
     public static void logout() {
         currentUser = null;
         token = null;
+        CachedData.bookArrayList.clear();
     }
+
 
 }

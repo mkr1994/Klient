@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class CachedData {
 
     String string;
-    public ArrayList<Book> bookArrayList = new ArrayList<>();
+    public static ArrayList<Book> bookArrayList = new ArrayList<>();
 
 
     public String getString() {
@@ -29,5 +29,9 @@ public class CachedData {
 
     public void setBookArrayList(ArrayList<Book> bookArrayList) {
         this.bookArrayList = bookArrayList;
+    }
+
+    public void clearCache(){
+        bookArrayList.clear();
     }
 }

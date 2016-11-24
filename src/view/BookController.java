@@ -141,7 +141,6 @@ public class BookController {
             int semesterChoice = input.nextInt();
             for (int f = 0; f < curriculumArrayList.size(); f++) {
                 if (curriculumArrayList.get(f).getSemester() == semesterChoice) {
-                    System.out.println(curriculumArrayList.get(f).getCurriculumID());
                     curriculumID = curriculumArrayList.get(f).getCurriculumID();
                     semesterFound = true;
                     break;

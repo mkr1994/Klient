@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import sdk.connection.CachedData;
 import view.BookController;
 import controller.MainController;
@@ -77,14 +78,17 @@ public class BookService {
     public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
        // CachedData cachedData = new CachedData();
-        if(CachedData.bookArrayList.size() > 0) {
-            responseCallback.success(cachedData.getBookArrayList());
+        System.out.println(System.currentTimeMillis());
+        System.out.println(MainController.startTime);
+        System.out.println((System.currentTimeMillis() - MainController.startTime )%2);
+        if( !CachedData.bookArrayList.isEmpty() && (System.currentTimeMillis() - MainController.startTime ) %2==0 ) {
+            responseCallback.success(CachedData.bookArrayList);
         }else {
             this.connection.execute(getRequest, new ResponseParser() {
                 public void payload(String json) {
                     ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
                     }.getType());
-                    cachedData.setBookArrayList(books);
+                    CachedData.bookArrayList = books;
                     responseCallback.success(books);
                 }
 

@@ -28,6 +28,7 @@ public class MainController {
     public static String token;
     private Connection connection;
     private static CachedData cachedData = new CachedData();
+    public static long startTime = System.currentTimeMillis();
 
     public MainController() {
         this.bookController = new BookController();

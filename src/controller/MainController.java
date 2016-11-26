@@ -27,14 +27,15 @@ public class MainController {
     public static User currentUser;
     public static String token;
     private Connection connection;
-    private static CachedData cachedData = new CachedData();
     public static long startTime = System.currentTimeMillis();
+    private CachedData cachedData;
 
     public MainController() {
         this.bookController = new BookController();
         this.userController = new UserController();
         this.input = new Scanner(System.in);
         this.connection = new Connection();
+        this.cachedData = new CachedData();
     }
 
     public void run() {
@@ -91,6 +92,7 @@ public class MainController {
                 }
             } catch (Exception e) {
                 System.out.println("A serious error occurred! Please login again! ");
+                cachedData.clearCache();
                 logout();
                 input.next();
             }
@@ -139,13 +141,17 @@ public class MainController {
                     bookController.createNewBook();
                     break;
                 case 4:
-                    bookController.getAllBooks();
+                    bookController.getAllBooks(cachedData);
                     break;
                 case 5:
+                    bookController.createNewCurriculum();
+                    break;
+                case 6:
+                    cachedData.clearCache();
                     logout();
                     break;
             }
-        } while (choice > 5);
+        } while (choice > 6);
 
     }
 
@@ -205,8 +211,8 @@ public class MainController {
 
     private void printMenu(int i) {
         if (i == 1) {
-            System.out.println("__________               __   .___  __   "); //All credit to Gerishanth Sivakumar mester #2
-            System.out.println("\\______   \\ ____   ____ |  | _|   |/  |_ "); //Geri linkedIn: https://www.linkedin.com/in/gerish?authType=NAME_SEARCH&authToken=nQES&locale=da_DK&trk=tyah&trkInfo=clickedVertical%3Amynetwork%2CclickedEntityId%3A364885753%2CauthType%3ANAME_SEARCH%2Cidx%3A1-1-1%2CtarId%3A1479907877108%2Ctas%3Ageri
+            System.out.println("__________               __   .___  __   ");
+            System.out.println("\\______   \\ ____   ____ |  | _|   |/  |_ ");
             System.out.println(" |    |  _//  _ \\ /  _ \\|  |/ /   \\   __\\");
             System.out.println(" |    |   (  <_> |  <_> )    <|   ||  |  ");
             System.out.println(" |______  /\\____/ \\____/|__|_ \\___||__|  ");
@@ -214,21 +220,20 @@ public class MainController {
             System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 to continue without login\nPress 4 to create new user");
         } else if (i == 2)
         {
-            System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create new book" +
-                    "\nPress 4 to view all books\nPress 5 to logout");
+            System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to new book" +
+                    "\nPress 4 to view all books\nPress 5 to create new Curriculum\nPress 6 to logout");
         } else if (i == 3)
         {
             System.out.println("Welcome to user menu \nPress 1 to find a book\nPress 2 to update your info\nPress 3 to delete your account" +
                     "\nPress 4 to log out ");
         } else if (i == 4)
         {
-            System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to signup as an user\nPress 3 to return to main menu");
+            System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to sign up as an user\nPress 3 to return to main menu");
         }
     }
     public static void logout() {
         currentUser = null;
         token = null;
-        CachedData.bookArrayList.clear();
     }
 
 

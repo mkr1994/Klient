@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class CachedData {
 
     String string;
-    public static ArrayList<Book> bookArrayList = new ArrayList<>();
+    public ArrayList<Book> bookArrayList = new ArrayList<>();
 
 
     public String getString() {
@@ -20,8 +20,6 @@ public class CachedData {
     public void setString(String string) {
         this.string = string;
     }
-
-
 
     public ArrayList<Book> getBookArrayList() {
         return bookArrayList;

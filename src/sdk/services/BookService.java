@@ -26,14 +26,36 @@ public class BookService {
 
     private Connection connection;
     private Gson gson;
-    CachedData cachedData;
     public BookService() {
         this.connection = new Connection();
         this.gson = new Gson();
-        this.cachedData = new CachedData();
     }
 
-    public void create(Book book, final ResponseCallback<String> responseCallback) {
+    public void createNewCurriculum(Curriculum curriculum, final ResponseCallback<String> responseCallback){
+        HttpPost postRequest = new HttpPost(Connection.serverURL + "curriculum");
+
+        try {
+            StringEntity curriculumString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(curriculum)));
+            postRequest.setEntity(curriculumString);
+            postRequest.setHeader("authorization", MainController.token);
+            postRequest.setHeader("Content-Type", "application/json");
+
+            this.connection.execute(postRequest, new ResponseParser() {
+                public void payload(String json) {
+                    responseCallback.success(json);
+                }
+
+                public void error(int status) {
+                    responseCallback.error(status);
+                }
+            });
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createNewBook(Book book, final ResponseCallback<String> responseCallback) {
         HttpPost postRequest = new HttpPost(Connection.serverURL + "book");
 
         try {
@@ -75,25 +97,21 @@ public class BookService {
     }
 
 
-    public void getAll(final ResponseCallback<ArrayList<Book>> responseCallback) {
+    public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
-       // CachedData cachedData = new CachedData();
-        System.out.println(System.currentTimeMillis());
-        System.out.println(MainController.startTime);
         System.out.println((System.currentTimeMillis() - MainController.startTime )%2);
-        if( !CachedData.bookArrayList.isEmpty() && (System.currentTimeMillis() - MainController.startTime ) %2==0 ) {
-            responseCallback.success(CachedData.bookArrayList);
+        if( !cachedData.getBookArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime ) %2==0 ) {
+            responseCallback.success(cachedData.getBookArrayList());
         }else {
             this.connection.execute(getRequest, new ResponseParser() {
                 public void payload(String json) {
                     ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
                     }.getType());
-                    CachedData.bookArrayList = books;
+                    cachedData.setBookArrayList(books);
                     responseCallback.success(books);
                 }
 
                 public void error(int status) {
-
                     responseCallback.error(status);
                 }
             });

@@ -168,7 +168,7 @@ public class UserController {
 
         User user = new User(firstName, lastName, username, email, password, false);
 
-        System.out.println("Are you sure that you want to create a new user with the following details:");
+        System.out.println("Are you sure that you want to createNewBook a new user with the following details:");
         System.out.printf("%-30s %-30s %-25s %-25s %-15s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Admin status:");
         System.out.printf("%-30s %-30s %-25s %-25s %-15b\n", user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
         System.out.println("Enter \"yes\" to confirm:");

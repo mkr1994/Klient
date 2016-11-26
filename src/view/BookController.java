@@ -26,6 +26,45 @@ public class BookController {
         this.cachedData = new CachedData();
     }
 
+    public void createNewCurriculum() {
+        String institution = null, education = null;
+        int semester = 0;
+        boolean inputOk = false;
+
+
+        do {
+            try {
+                System.out.println("You are about to createNewBook af new curriculum. Please enter name on institution:");
+                institution = input.nextLine();
+                System.out.println("Enter name on education:");
+                education = input.nextLine();
+                System.out.println("Enter which semester the curriculum belongs to:");
+                semester = input.nextInt();
+                inputOk = true;
+            } catch (InputMismatchException e) {
+                System.out.println("Seems like you entered a bad value! Please try again!");
+                inputOk = false;
+            }
+            input.nextLine();
+        } while (!inputOk);
+
+        Curriculum curriculum = new Curriculum(institution, education, semester);
+
+        bookService.createNewCurriculum(curriculum, new ResponseCallback<String>() {
+            @Override
+            public void success(String data) {
+                System.out.println(data);
+            }
+
+            @Override
+            public void error(int status) {
+                System.out.println("Sorry, something went wrong! Error code: " + status);
+            }
+        });
+
+
+    }
+
     public void createNewBook() {
         String publisher = null, title = null, author = null;
         double priceAB = 0, priceSAXO = 0, priceCDON = 0, ISBN = 0;
@@ -64,7 +103,7 @@ public class BookController {
 
         Book book = new Book(publisher, title, author, version, ISBN, priceAB, priceSAXO, priceCDON, curriculumID);
 
-        bookService.create(book, new ResponseCallback<String>() {
+        bookService.createNewBook(book, new ResponseCallback<String>() {
             @Override
             public void success(String data) {
                 System.out.println(data);
@@ -196,10 +235,9 @@ public class BookController {
         });
     }
 
-    public void getAllBooks() {
-        bookService.getAll(new ResponseCallback<ArrayList<Book>>() {
+    public void getAllBooks(CachedData cachedData) {
+        bookService.getAll(cachedData, new ResponseCallback<ArrayList<Book>>() {
             public void success(ArrayList<Book> books) {
-                cachedData.setBookArrayList(books);
                 int i = 1;
                 // Header
                 System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
@@ -210,9 +248,7 @@ public class BookController {
             }
 
             public void error(int status) {
-
                 System.out.println("Sorry, an error occurred! Error code: " + status);
-
             }
         });
     }

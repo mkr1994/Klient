@@ -1,9 +1,9 @@
 package view;
 
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import controller.MainController;
 import com.google.gson.Gson;
 import sdk.encrypters.Digester;
+import sdk.model.CachedData;
 import sdk.model.User;
 import sdk.connection.ResponseCallback;
 import sdk.services.UserService;
@@ -99,11 +99,11 @@ public class UserController {
         }
     }
 
-    public void deleteUser() {
+    public void deleteUser(CachedData cachedData) {
         int userId = 0;
 
         if (MainController.currentUser.getUserType() == true) {
-            getAllUsers();
+            getAllUsers(cachedData);
             System.out.println("Pleaser enter id on the user you wish to delete: ");
             userId = input.nextInt();
             System.out.println("Are you sure you want to delete tha account? Write \"yes\" to confirm");
@@ -125,7 +125,6 @@ public class UserController {
             userService.deleteUser(s, new ResponseCallback<Boolean>() {
                 @Override
                 public void success(Boolean data) {
-                    System.out.println(data);
                     MainController.logout();
 
                 }
@@ -168,7 +167,7 @@ public class UserController {
 
         User user = new User(firstName, lastName, username, email, password, false);
 
-        System.out.println("Are you sure that you want to createNewBook a new user with the following details:");
+        System.out.println("Are you sure that you want to create a new user with the following details:");
         System.out.printf("%-30s %-30s %-25s %-25s %-15s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Admin status:");
         System.out.printf("%-30s %-30s %-25s %-25s %-15b\n", user.getUserName(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUserType());
         System.out.println("Enter \"yes\" to confirm:");
@@ -191,8 +190,8 @@ public class UserController {
         input.nextLine();
     }
 
-    public void getAllUsers() {
-        userService.getAll(new ResponseCallback<ArrayList<User>>() {
+    public void getAllUsers(CachedData cachedData) {
+        userService.getAll(cachedData, new ResponseCallback<ArrayList<User>>() {
 
             @Override
             public void success(ArrayList<User> users) {

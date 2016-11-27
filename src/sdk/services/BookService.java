@@ -5,8 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
-import sdk.connection.CachedData;
+import sdk.model.CachedData;
 import view.BookController;
 import controller.MainController;
 import sdk.encrypters.Crypter;
@@ -99,12 +98,12 @@ public class BookService {
 
     public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
-        System.out.println((System.currentTimeMillis() - MainController.startTime )%2);
-        if( !cachedData.getBookArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime ) %2==0 ) {
+        if(!cachedData.getBookArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime ) < 60000){
             responseCallback.success(cachedData.getBookArrayList());
         }else {
             this.connection.execute(getRequest, new ResponseParser() {
                 public void payload(String json) {
+                    MainController.startTime = System.currentTimeMillis();
                     ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
                     }.getType());
                     cachedData.setBookArrayList(books);
@@ -116,6 +115,7 @@ public class BookService {
                 }
             });
         }
+
     }
 
     public void getAllCurriculums(final ResponseCallback<ArrayList<Curriculum>> responseCallback) {

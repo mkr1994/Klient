@@ -1,6 +1,6 @@
 package view;
 
-import sdk.connection.CachedData;
+import sdk.model.CachedData;
 import sdk.model.Book;
 import sdk.model.Curriculum;
 import sdk.connection.ResponseCallback;
@@ -34,7 +34,7 @@ public class BookController {
 
         do {
             try {
-                System.out.println("You are about to createNewBook af new curriculum. Please enter name on institution:");
+                System.out.println("You are about to create af new curriculum. Please enter name on institution:");
                 institution = input.nextLine();
                 System.out.println("Enter name on education:");
                 education = input.nextLine();
@@ -187,11 +187,11 @@ public class BookController {
 
             }
             if (!semesterFound) {
-                System.out.println("Seems like you entered a semester that doesn't exists yet! Only the following semesters are available for your education:");
+                System.out.println("\nSeems like you entered a semester that doesn't exists yet! Only the following semesters are available for your education:");
                 for (Curriculum c : curriculumArrayList) {
                     System.out.print("\n" + c.getSemester());
                 }
-                System.out.println("Please try again or contact your admin if you wish to have your semester on the list!");
+                System.out.println("\nPlease try again or contact your admin if you wish to have your semester on the list!");
             }
         } while (!semesterFound);
         input.nextLine();
@@ -217,7 +217,7 @@ public class BookController {
                     System.out.println("Enter number on book you wish to retrieve price info: ");
                     bookToGetInfo = input.nextInt();
                     bookToGetInfo--;
-                    System.out.printf("You have chosen: \n\"%s\" \nPrice at Amazon: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
+                    System.out.printf("You have chosen: \n\"%s\" \nPrice at Academic Books: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
 
                     System.out.println("Do you wish to get price info on another book? Press 1 for for yes. Press 2 for no");
                     if (input.nextInt() == 1) {
@@ -240,9 +240,9 @@ public class BookController {
             public void success(ArrayList<Book> books) {
                 int i = 1;
                 // Header
-                System.out.printf("%-7s %-55s %-80s %-25s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:", "Book Price Amazon:");
+                System.out.printf("%-7s %-55s %-80s %-25s %-25s %-25s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:", "Book Price Academic Books:", "Book Price SAXO:", "Book Price CDON:");
                 for (Book book : books) {
-                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f\n", i, book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB());
+                    System.out.printf("%-7d %-55s %-80s %-25.0f %-25.2f %-25.2f %-25.2f\n", i, book.getTitle(), book.getAuthor(), book.getISBN(), book.getPriceAB(), book.getPriceSAXO(), book.getPriceCDON());
                     i++;
                 }
             }

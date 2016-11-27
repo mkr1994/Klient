@@ -3,8 +3,7 @@ package controller;
 import com.google.gson.Gson;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.cache.CacheConfig;
-import sdk.connection.CachedData;
+import sdk.model.CachedData;
 import sdk.encrypters.Crypter;
 import sdk.encrypters.Digester;
 import sdk.model.User;
@@ -27,7 +26,7 @@ public class MainController {
     public static User currentUser;
     public static String token;
     private Connection connection;
-    public static long startTime = System.currentTimeMillis();
+    public static long startTime;
     private CachedData cachedData;
 
     public MainController() {
@@ -61,6 +60,7 @@ public class MainController {
                     login(new ResponseCallback<String>() {
                         @Override
                         public void success(String data) {
+                            startTime = System.currentTimeMillis();
                             token = data;
                             userController.getUserFromToken();
                             switch (choice) {
@@ -94,7 +94,8 @@ public class MainController {
                 System.out.println("A serious error occurred! Please login again! ");
                 cachedData.clearCache();
                 logout();
-                input.next();
+            } finally {
+                input.nextLine();
             }
 
         }
@@ -115,7 +116,7 @@ public class MainController {
                     userController.editUser();
                     break;
                 case 3:
-                    userController.deleteUser();
+                    userController.deleteUser(cachedData);
                     break;
                 case 4:
                     logout();
@@ -132,10 +133,10 @@ public class MainController {
             choice = input.nextInt();
             switch (choice) {
                 case 1:
-                    userController.getAllUsers();
+                    userController.getAllUsers(cachedData);
                     break;
                 case 2:
-                    userController.deleteUser();
+                    userController.deleteUser(cachedData);
                     break;
                 case 3:
                     bookController.createNewBook();
@@ -220,7 +221,7 @@ public class MainController {
             System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 to continue without login\nPress 4 to create new user");
         } else if (i == 2)
         {
-            System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to new book" +
+            System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create a new book" +
                     "\nPress 4 to view all books\nPress 5 to create new Curriculum\nPress 6 to logout");
         } else if (i == 3)
         {

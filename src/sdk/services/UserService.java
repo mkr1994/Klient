@@ -9,6 +9,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import controller.MainController;
 import sdk.encrypters.Crypter;
+import sdk.model.CachedData;
 import sdk.model.User;
 import sdk.connection.Connection;
 import sdk.connection.ResponseCallback;
@@ -119,23 +120,29 @@ public class UserService {
         }
     }
 
-    public void getAll(final ResponseCallback<ArrayList<User>> responseCallback) {
+    public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<User>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user");
 
-        getRequest.setHeader("authorization", MainController.token);
-        getRequest.setHeader("Content-Type", "application/json");
-        this.connection.execute(getRequest, new ResponseParser() {
-            public void payload(String json) {
-                ArrayList<User> users = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<User>>() {
-                }.getType());
-                responseCallback.success(users);
-            }
+        if (!cachedData.getUserArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime) < 60000) {
+            responseCallback.success(cachedData.getUserArrayList());
+        } else {
 
-            public void error(int status) {
+            getRequest.setHeader("authorization", MainController.token);
+            getRequest.setHeader("Content-Type", "application/json");
+            this.connection.execute(getRequest, new ResponseParser() {
+                public void payload(String json) {
+                    MainController.startTime = System.currentTimeMillis();
+                    ArrayList<User> users = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<User>>() {
+                    }.getType());
+                    responseCallback.success(users);
+                }
 
-                responseCallback.error(status);
-            }
-        });
+                public void error(int status) {
+
+                    responseCallback.error(status);
+                }
+            });
+        }
     }
 
 

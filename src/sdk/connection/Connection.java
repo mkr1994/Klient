@@ -1,26 +1,16 @@
 package sdk.connection;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.cache.CacheResponseStatus;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.cache.CacheConfig;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.impl.client.cache.CachingHttpClient;
-import sdk.encrypters.Crypter;
-import sdk.model.Book;
+import sdk.model.CachedData;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Connection {
 
@@ -56,8 +46,6 @@ public class Connection {
             String json = this.httpClient.execute(uriRequest, responseHandler);
 
             if (json != null) {
-                // System.out.println(cachedData.getBookArrayList().get(1).getTitle());
-                cachedData.setString(json);
                 methods.payload(json);
             }
         } catch (IOException e) {

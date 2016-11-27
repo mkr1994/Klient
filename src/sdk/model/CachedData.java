@@ -1,4 +1,4 @@
-package sdk.connection;
+package sdk.model;
 
 import sdk.model.Book;
 
@@ -9,16 +9,15 @@ import java.util.ArrayList;
  */
 public class CachedData {
 
-    String string;
     public ArrayList<Book> bookArrayList = new ArrayList<>();
+    public ArrayList<User> userArrayList = new ArrayList<>();
 
-
-    public String getString() {
-        return string;
+    public ArrayList<User> getUserArrayList() {
+        return userArrayList;
     }
 
-    public void setString(String string) {
-        this.string = string;
+    public void setUserArrayList(ArrayList<User> userArrayList) {
+        this.userArrayList = userArrayList;
     }
 
     public ArrayList<Book> getBookArrayList() {
@@ -31,5 +30,6 @@ public class CachedData {
 
     public void clearCache(){
         bookArrayList.clear();
+        userArrayList.clear();
     }
 }

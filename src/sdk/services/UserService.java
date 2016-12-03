@@ -134,6 +134,7 @@ public class UserService {
                     MainController.startTime = System.currentTimeMillis();
                     ArrayList<User> users = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<User>>() {
                     }.getType());
+                    cachedData.setUserArrayList(users);
                     responseCallback.success(users);
                 }
 

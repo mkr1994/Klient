@@ -104,13 +104,15 @@ public class UserController {
 
         if (MainController.currentUser.getUserType() == true) {
             getAllUsers(cachedData);
-            System.out.println("Pleaser enter id on the user you wish to delete: ");
-            userId = input.nextInt();
-            System.out.println("Are you sure you want to delete tha account? Write \"yes\" to confirm");
-            if (!input.nextLine().equals("yes")) {
-                userId = 0;
-            } else {
-                System.out.println("You did not enter yes! Deletion cancelled...");
+            if(MainController.currentUser != null) {
+                System.out.println("Pleaser enter id on the user you wish to delete: ");
+                userId = input.nextInt();
+                input.nextLine();
+                System.out.println("Are you sure you want to delete the account? Write \"yes\" to confirm");
+                if (!input.nextLine().equals("yes")) {
+                    userId = 0;
+                    System.out.println("You did not enter yes! Deletion cancelled...");
+                }
             }
         } else {
             System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
@@ -125,7 +127,9 @@ public class UserController {
             userService.deleteUser(s, new ResponseCallback<Boolean>() {
                 @Override
                 public void success(Boolean data) {
-                    MainController.logout();
+                   if(MainController.currentUser.getUserType() == false) {
+                       MainController.logout();
+                   }
 
                 }
 
@@ -191,6 +195,7 @@ public class UserController {
     }
 
     public void getAllUsers(CachedData cachedData) {
+
         userService.getAll(cachedData, new ResponseCallback<ArrayList<User>>() {
 
             @Override
@@ -204,7 +209,8 @@ public class UserController {
 
             @Override
             public void error(int status) {
-
+                System.out.println("Error: "+status + " seems like your session has expired, please login again");
+                MainController.logout();
             }
         });
     }

@@ -88,10 +88,10 @@ public class MainController {
                         }
                     });
                 } else {
-                    System.out.println("Please enter a valid number!");
+                    System.err.println("Please enter a valid number!");
                 }
             } catch (Exception e) {
-                System.out.println("A serious error occurred! Please login again! ");
+                System.err.println("A serious error occurred! Please login again! Error message:\n " + e.getMessage());
                 cachedData.clearCache();
                 logout();
             } finally {
@@ -176,6 +176,10 @@ public class MainController {
 
     }
 
+    /**
+     * Login method
+     * @param responseCallback
+     */
     private void login(final ResponseCallback<String> responseCallback) {
 
         HttpPost postRequest = new HttpPost(Connection.serverURL + "user/login");
@@ -206,7 +210,7 @@ public class MainController {
 
 
         } catch (UnsupportedEncodingException e) {
-            System.out.println("An error occurred!");
+            System.err.println("An error occurred!");
         }
     }
 

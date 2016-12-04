@@ -42,7 +42,7 @@ public class BookController {
                 semester = input.nextInt();
                 inputOk = true;
             } catch (InputMismatchException e) {
-                System.out.println("Seems like you entered a bad value! Please try again!");
+                System.err.println("Seems like you entered a bad value! Please try again!");
                 inputOk = false;
             }
             input.nextLine();
@@ -58,7 +58,7 @@ public class BookController {
 
             @Override
             public void error(int status) {
-                System.out.println("Sorry, something went wrong! Error code: " + status);
+                System.err.println("Sorry, something went wrong! Error code: " + status);
             }
         });
 
@@ -111,7 +111,7 @@ public class BookController {
 
             @Override
             public void error(int status) {
-                System.out.println("Sorry, something went wrong! Error code: " + status);
+                System.err.println("Sorry, something went wrong! Error code: " + status);
 
             }
         });
@@ -127,7 +127,7 @@ public class BookController {
             }
 
             public void error(int status) {
-                System.out.println(status);
+                System.err.println(status);
             }
         });
 
@@ -187,7 +187,7 @@ public class BookController {
 
             }
             if (!semesterFound) {
-                System.out.println("\nSeems like you entered a semester that doesn't exists yet! Only the following semesters are available for your education:");
+                System.err.println("\nSeems like you entered a semester that doesn't exists yet! Only the following semesters are available for your education:");
                 for (Curriculum c : curriculumArrayList) {
                     System.out.print("\n" + c.getSemester());
                 }
@@ -230,7 +230,7 @@ public class BookController {
 
             public void error(int status) {
 
-                System.out.println("Sorry, an error occurred! Error code: " + status);
+                System.err.println("Sorry, an error occurred! Error code: " + status);
             }
         });
     }
@@ -248,7 +248,7 @@ public class BookController {
             }
 
             public void error(int status) {
-                System.out.println("Sorry, an error occurred! Error code: " + status);
+                System.err.println("Sorry, an error occurred! Error code: " + status);
             }
         });
     }

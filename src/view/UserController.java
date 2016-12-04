@@ -34,52 +34,54 @@ public class UserController {
         System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Password:");
         System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*********");
 
-        System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel");
-        choice = input.nextInt();
-        input.nextLine();
-        if (choice < 5) {
-            System.out.println("Please enter new value: ");
-            newInfo = input.nextLine();
-        }
-        switch (choice) {
-            case 1:
-                u.setUserName(newInfo);
-                break;
-            case 2:
-                u.setFirstName(newInfo);
-                break;
-            case 3:
-                u.setLastName(newInfo);
-                break;
-            case 4:
-                u.setEmail(newInfo);
-                break;
-            case 5:
-                do {
-                    System.out.println("Enter your old password: ");
-                    newInfo = input.nextLine();
-                    tries++;
-                    if (u.getPassword().equals(Digester.hashWithSalt(newInfo))) {
-                        tries = 3;
-                        System.out.println("Enter your new password:");
+        do {
+            System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel");
+            choice = input.nextInt();
+            input.nextLine();
+            if (choice < 5) {
+                System.out.println("Please enter new value: ");
+                newInfo = input.nextLine();
+            }
+            switch (choice) {
+                case 1:
+                    u.setUserName(newInfo);
+                    break;
+                case 2:
+                    u.setFirstName(newInfo);
+                    break;
+                case 3:
+                    u.setLastName(newInfo);
+                    break;
+                case 4:
+                    u.setEmail(newInfo);
+                    break;
+                case 5:
+                    do {
+                        System.out.println("Enter your old password: ");
                         newInfo = input.nextLine();
-                        u.setPassword(Digester.hashWithSalt(newInfo));
-                        fireRequest = true;
-                    } else {
-                        System.out.println("You entered a wrong password! Tries left: " + (3 - tries));
-                        fireRequest = false;
-                    }
-                } while (tries < 3);
-                break;
-            case 6:
-                fireRequest = false;
-                break;
-            default:
-                System.out.println("Wrong input");
-                fireRequest = false;
-                break;
+                        tries++;
+                        if (u.getPassword().equals(Digester.hashWithSalt(newInfo))) {
+                            tries = 3;
+                            System.out.println("Enter your new password:");
+                            newInfo = input.nextLine();
+                            u.setPassword(Digester.hashWithSalt(newInfo));
+                            fireRequest = true;
+                        } else {
+                            System.err.println("You entered a wrong password! Tries left: " + (3 - tries));
+                            fireRequest = false;
+                        }
+                    } while (tries < 3);
+                    break;
+                case 6:
+                    fireRequest = false;
+                    break;
+                default:
+                    System.err.println("Wrong input, try again!");
+                    fireRequest = false;
+                    break;
 
-        }
+            }
+        } while(!fireRequest);
 
         if (fireRequest) {
             String s = "user/" + u.getUserID();
@@ -111,7 +113,7 @@ public class UserController {
                 System.out.println("Are you sure you want to delete the account? Write \"yes\" to confirm");
                 if (!input.nextLine().equals("yes")) {
                     userId = 0;
-                    System.out.println("You did not enter yes! Deletion cancelled...");
+                    System.err.println("You did not enter yes! Deletion cancelled...");
                 }
             }
         } else {
@@ -119,7 +121,7 @@ public class UserController {
             if (input.next().equals("yes")) {
                 userId = MainController.currentUser.getUserID();
             } else {
-                System.out.println("You did not enter yes! Deletion cancelled...");
+                System.err.println("You did not enter yes! Deletion cancelled...");
             }
         }
         if (userId != 0) {
@@ -127,6 +129,7 @@ public class UserController {
             userService.deleteUser(s, new ResponseCallback<Boolean>() {
                 @Override
                 public void success(Boolean data) {
+                    System.out.println("The account was deleted succesfully!");
                    if(MainController.currentUser.getUserType() == false) {
                        MainController.logout();
                    }
@@ -135,7 +138,7 @@ public class UserController {
 
                 @Override
                 public void error(int status) {
-                    System.out.println(status);
+                    System.err.println(status);
                 }
             });
         }
@@ -151,7 +154,7 @@ public class UserController {
 
             @Override
             public void error(int status) {
-                System.out.println(status);
+                System.err.println(status);
             }
         });
     }
@@ -189,7 +192,7 @@ public class UserController {
                 }
             });
         } else {
-            System.out.println("You didn't enter yes. Returning to main menu");
+            System.err.println("You didn't enter yes. Returning to main menu");
         }
         input.nextLine();
     }
@@ -209,7 +212,7 @@ public class UserController {
 
             @Override
             public void error(int status) {
-                System.out.println("Error: "+status + " seems like your session has expired, please login again");
+                System.err.println("Error: "+status + " seems like your session has expired, please login again");
                 MainController.logout();
             }
         });

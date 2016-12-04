@@ -14,9 +14,8 @@ import java.io.IOException;
 
 public class Connection {
 
-    public static String serverURL = "http://localhost:8080/Server_war_exploded/";
+    public static String serverURL = "http://localhost:8080/api/";
     private CloseableHttpClient httpClient;
-    public CachedData cachedData = new CachedData();
 
     public Connection() {
         this.httpClient = HttpClients.createDefault();

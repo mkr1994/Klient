@@ -123,7 +123,6 @@ public class BookController {
         bookService.getAllCurriculums(new ResponseCallback<ArrayList<Curriculum>>() {
             public void success(ArrayList<Curriculum> curriculum) {
                 extractCurriculumID(curriculum);
-
             }
 
             public void error(int status) {
@@ -133,11 +132,21 @@ public class BookController {
 
     }
 
+    /**
+     * Lets the user extracts the curriculum id, by first showing school then removing all other schools. After that it shows the available educations
+     * and removing all others, and lastly lets the user enter which semester he is attending, which will result in a unique id used to get alle books
+     * from a specific curriculum
+     * @param curriculumArrayList
+     * @return
+     */
     private int extractCurriculumID(ArrayList<Curriculum> curriculumArrayList) {
 
         int j = 1, choice;
-        ArrayList<String> strings = new ArrayList();
+        ArrayList<String> strings = new ArrayList(); // temp list used in for loops, to print every different entry only once.
 
+        /*
+        Loop that shows all the different schools only once.
+         */
         for (Curriculum c : curriculumArrayList) {
             if (!strings.contains(c.getSchool())) {
                 System.out.println("Number " + j + ":\t " + c.getSchool());
@@ -148,15 +157,20 @@ public class BookController {
             }
         }
 
+        // Hereafter the user enters the number at which school he attends.
         do {
             System.out.println("Enter number on institution:");
             choice = input.nextInt();
         } while (choice > strings.size());
         int finalChoice = --choice;
-        curriculumArrayList.removeIf(Curriculum -> !Curriculum.getSchool().contains(strings.get(finalChoice))); //fra http://stackoverflow.com/questions/9146224/arraylist-filter
+        //And now removing all schools that doesn't match the school of the entered number
+        curriculumArrayList.removeIf(Curriculum -> !Curriculum.getSchool().contains(strings.get(finalChoice))); //inspiration fra http://stackoverflow.com/questions/9146224/arraylist-filter
         strings.clear();
 
         j = 1;
+        /*
+        Loop that shows all educations only once and from the selected school.
+         */
         for (Curriculum c : curriculumArrayList) {
             if (!strings.contains(c.getEducation())) {
                 System.out.println("Number " + j + ":\t " + c.getEducation());
@@ -166,21 +180,24 @@ public class BookController {
                 strings.add(c.getEducation());
             }
         }
+        // Then the user enters which education he is attending.
         do {
             System.out.println("Enter number on education: ");
             choice = input.nextInt();
         } while (choice > strings.size());
 
         int finalChoice2 = --choice;
+        //And alle other educations are removed.
         curriculumArrayList.removeIf(Curriculum -> !Curriculum.getEducation().contains(strings.get(finalChoice2)));
 
         boolean semesterFound = false;
+        // Loop letting the user enter semester. If invalid semester is entered, a list of available semesters will be shown.
         do {
             System.out.println("\nEnter number on semester:");
             int semesterChoice = input.nextInt();
             for (int f = 0; f < curriculumArrayList.size(); f++) {
                 if (curriculumArrayList.get(f).getSemester() == semesterChoice) {
-                    curriculumID = curriculumArrayList.get(f).getCurriculumID();
+                    curriculumID = curriculumArrayList.get(f).getCurriculumID(); //If the entered number matches a available semester, the curriculumid is found!
                     semesterFound = true;
                     break;
                 }
@@ -191,7 +208,7 @@ public class BookController {
                 for (Curriculum c : curriculumArrayList) {
                     System.out.print("\n" + c.getSemester());
                 }
-                System.out.println("\nPlease try again or contact your admin if you wish to have your semester on the list!");
+                System.err.println("\nPlease try again or contact your admin if you wish to have your semester on the list!");
             }
         } while (!semesterFound);
         input.nextLine();
@@ -229,7 +246,6 @@ public class BookController {
             }
 
             public void error(int status) {
-
                 System.err.println("Sorry, an error occurred! Error code: " + status);
             }
         });

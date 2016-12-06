@@ -1,11 +1,9 @@
 package sdk.encrypters;
-
-/**
- *
- */
-
 import java.util.Random;
 
+/**
+ * Class used for encryption and decryption. https://github.com/KyleBanks/XOREncryption/blob/master/Java%20(Android%20compatible)/XOREncryption.java
+ */
 public class Crypter {
 
 

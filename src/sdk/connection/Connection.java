@@ -7,7 +7,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import sdk.model.CachedData;
 
 
 import java.io.IOException;

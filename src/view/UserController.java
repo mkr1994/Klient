@@ -28,7 +28,7 @@ public class UserController {
         User u = MainController.currentUser;
         String newInfo = null;
         int choice, tries = 0;
-        boolean fireRequest = true;
+        boolean fireRequest = true, stopLoop = false;
 
         // Header for showing userinfo
         System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Password:");
@@ -74,6 +74,7 @@ public class UserController {
                     break;
                 case 6:
                     fireRequest = false;
+                    stopLoop = true;
                     break;
                 default:
                     System.err.println("Wrong input, try again!");
@@ -81,7 +82,7 @@ public class UserController {
                     break;
 
             }
-        } while(!fireRequest);
+        } while(!stopLoop);
 
         if (fireRequest) {
             String s = "user/" + u.getUserID();
@@ -96,8 +97,6 @@ public class UserController {
 
                 }
             });
-        } else {
-            MainController.logout();
         }
     }
 
@@ -107,7 +106,7 @@ public class UserController {
         if (MainController.currentUser.getUserType() == true) {
             getAllUsers(cachedData);
             if(MainController.currentUser != null) {
-                System.out.println("Pleaser enter id on the user you wish to delete: ");
+                System.out.println("Please enter id on the user you wish to delete: ");
                 userId = input.nextInt();
                 input.nextLine();
                 System.out.println("Are you sure you want to delete the account? Write \"yes\" to confirm");
@@ -194,7 +193,6 @@ public class UserController {
         } else {
             System.err.println("You didn't enter yes. Returning to main menu");
         }
-        input.nextLine();
     }
 
     public void getAllUsers(CachedData cachedData) {

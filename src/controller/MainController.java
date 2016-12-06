@@ -92,9 +92,10 @@ public class MainController {
                 }
             } catch (Exception e) {
                 System.err.println("A serious error occurred! Please login again! Error message:\n " + e.getMessage());
+
+            } finally {
                 cachedData.clearCache();
                 logout();
-            } finally {
                 input.nextLine();
             }
 

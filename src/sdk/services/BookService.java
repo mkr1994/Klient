@@ -89,7 +89,6 @@ public class BookService {
             }
 
             public void error(int status) {
-
                 responseCallback.error(status);
             }
         });

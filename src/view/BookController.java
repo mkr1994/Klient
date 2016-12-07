@@ -11,6 +11,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
+ * Controllerclass containing all book related methods.
  * Created by magnusrasmussen on 29/10/2016.
  */
 public class BookController {
@@ -18,19 +19,16 @@ public class BookController {
     private Scanner input;
     private BookService bookService;
     public static int curriculumID;
-    public CachedData cachedData;
 
     public BookController() {
         this.input = new Scanner(System.in);
         this.bookService = new BookService();
-        this.cachedData = new CachedData();
     }
 
     public void createNewCurriculum() {
         String institution = null, education = null;
         int semester = 0;
         boolean inputOk = false;
-
 
         do {
             try {
@@ -139,7 +137,7 @@ public class BookController {
      * @param curriculumArrayList
      * @return
      */
-    private int extractCurriculumID(ArrayList<Curriculum> curriculumArrayList) {
+    private void extractCurriculumID(ArrayList<Curriculum> curriculumArrayList) {
 
         int j = 1, choice;
         ArrayList<String> strings = new ArrayList(); // temp list used in for loops, to print every different entry only once.
@@ -212,7 +210,6 @@ public class BookController {
             }
         } while (!semesterFound);
         input.nextLine();
-        return curriculumID;
     }
 
     public void getBooksFromCurriculum() {

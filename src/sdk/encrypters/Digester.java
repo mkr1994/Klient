@@ -3,7 +3,7 @@ package sdk.encrypters;
 import java.security.MessageDigest;
 
 /**
- *
+ * Digester used for hashing+salt passwords
  */
 
 public class Digester {
@@ -17,13 +17,13 @@ public class Digester {
             e.printStackTrace();
         }
     }
-
+/*
     public static String hash(String str) {
         if (str == null || str.length() == 0) {
             throw new IllegalArgumentException("Fejl");
         }
         return Digester._hash(str);
-    }
+    }*/
 
     public static String hashWithSalt(String str) {
         if (str == null || str.length() == 0) {

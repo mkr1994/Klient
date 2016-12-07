@@ -37,15 +37,21 @@ public class MainController {
         this.cachedData = new CachedData();
     }
 
+    /**
+     * run method which vill continue to run.
+     */
     public void run() {
 
         while (currentUser == null) {
 
-            printMenu(1);
+            printMenu(1); //Print welcome menu
             try {
                 int choice = input.nextInt();
 
 
+                /**
+                 * These methods doesn't need a login
+                 */
                 if (choice == 3 || choice == 4) {
                     switch (choice) {
                         case 3:
@@ -57,6 +63,9 @@ public class MainController {
 
                     }
                 } else if (choice == 1 || choice == 2) {
+                    /**
+                     * Depending on what menu the user has tried to login to, the given menu will be shown if allowed.
+                     */
                     login(new ResponseCallback<String>() {
                         @Override
                         public void success(String data) {
@@ -68,15 +77,16 @@ public class MainController {
                                     if (currentUser.getUserType() == false) {
                                         do {
                                             showUserSwitch();
-                                        } while (currentUser != null);
+                                        } while (currentUser != null); //Run as long as the user hasn't logged out.
                                     }
                                     break;
                                 case 2:
                                     if (currentUser.getUserType() == true) {
                                         do {
                                             showAdminSwitch();
-                                        } while (currentUser != null);
-                                    }
+                                        } while (currentUser != null); //Run as long as the user hasn't logged out.
+                                    } else
+                                        System.out.println("Sorry, you are not an admin! ");
                                     break;
                             }
                         }
@@ -91,10 +101,10 @@ public class MainController {
                     System.err.println("Please enter a valid number!");
                 }
             } catch (Exception e) {
-                System.err.println("A serious error occurred! Please login again! Error message:\n " + e.getMessage());
+                System.err.println("A serious error occurred! Please login again! Error message:\n " + e.getMessage()); // Not that serious, probably just inputmismatch
 
-            } finally {
-                cachedData.clearCache();
+            } finally { //Finally clause, so all session data always will be cleared.
+                cachedData.clearCache(); //Clear local cache.
                 logout();
                 input.nextLine();
             }
@@ -103,6 +113,9 @@ public class MainController {
 
     }
 
+    /**
+     * User menu
+     */
     private void showUserSwitch() {
         int choice;
         do {
@@ -122,11 +135,17 @@ public class MainController {
                 case 4:
                     logout();
                     break;
+                default:
+                    System.err.println("Please enter valid number");
+                    break;
             }
-        }while(choice > 4);
+        } while (choice > 4);
 
     }
 
+    /**
+     * Admin menu.
+     */
     private void showAdminSwitch() {
         int choice;
         do {
@@ -157,6 +176,9 @@ public class MainController {
 
     }
 
+    /**
+     * Guest menu
+     */
     private void showGuestSwitch() {
         int choice;
         do {
@@ -171,6 +193,7 @@ public class MainController {
                     userController.createNewUser();
                     break;
                 default:
+                    System.err.println("Please enter af valid number");
                     break;
             }
         } while (choice > 3);
@@ -179,15 +202,14 @@ public class MainController {
 
     /**
      * Login method
+     *
      * @param responseCallback
      */
     private void login(final ResponseCallback<String> responseCallback) {
-
-        HttpPost postRequest = new HttpPost(Connection.serverURL + "user/login");
-
         String userName, password;
         input.nextLine();
 
+        HttpPost postRequest = new HttpPost(Connection.serverURL + "user/login");
         System.out.println("Please enter username: ");
         userName = input.nextLine();
         System.out.println("Please enter password: ");
@@ -215,6 +237,11 @@ public class MainController {
         }
     }
 
+    /**
+     * Various TUI menues
+     *
+     * @param i
+     */
     private void printMenu(int i) {
         if (i == 1) {
             System.out.println("__________               __   .___  __   ");
@@ -224,19 +251,20 @@ public class MainController {
             System.out.println(" |______  /\\____/ \\____/|__|_ \\___||__|  ");
             System.out.println("        \\/                   \\/          ");
             System.out.println("Welcome to Bookit!\nPress 1 to login as an user\nPress 2 to login as an admin\nPress 3 to continue without login\nPress 4 to create new user");
-        } else if (i == 2)
-        {
+        } else if (i == 2) {
             System.out.println("Welcome to admin menu. \nPress 1 to view all users\nPress 2 to delete an user\nPress 3 to create a new book" +
                     "\nPress 4 to view all books\nPress 5 to create new Curriculum\nPress 6 to logout");
-        } else if (i == 3)
-        {
+        } else if (i == 3) {
             System.out.println("Welcome to user menu \nPress 1 to find a book\nPress 2 to update your info\nPress 3 to delete your account" +
                     "\nPress 4 to log out ");
-        } else if (i == 4)
-        {
+        } else if (i == 4) {
             System.out.println("Welcome guest \nPress 1 to find price info on a book\nPress 2 to sign up as an user\nPress 3 to return to main menu");
         }
     }
+
+    /**
+     * Currentuser logout. Remember to add new variables used in session.
+     */
     public static void logout() {
         currentUser = null;
         token = null;

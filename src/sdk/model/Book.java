@@ -1,6 +1,7 @@
 package sdk.model;
 
 /**
+ * Book model class
  * Created by magnusrasmussen on 25/10/2016.
  */
 public class Book {

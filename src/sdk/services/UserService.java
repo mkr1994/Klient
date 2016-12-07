@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 /**
+ * Service class which creates specific http request, used for servercalls, including POST and GET for all user related tasks
  * Created by magnusrasmussen on 22/11/2016.
  */
 public class UserService {
@@ -123,6 +124,7 @@ public class UserService {
     public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<User>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user");
 
+        // Check if valid cached data already exists in RAM. The servercall isn't fulfilled if data has been received in the last 60 seconds.
         if (!cachedData.getUserArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime) < 60000) {
             responseCallback.success(cachedData.getUserArrayList());
         } else {

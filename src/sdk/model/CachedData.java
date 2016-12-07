@@ -5,6 +5,7 @@ import sdk.model.Book;
 import java.util.ArrayList;
 
 /**
+ * This class contains to arraylists which can be used to store cached data
  * Created by magnusrasmussen on 23/11/2016.
  */
 public class CachedData {
@@ -28,6 +29,9 @@ public class CachedData {
         this.bookArrayList = bookArrayList;
     }
 
+    /**
+     * Clear the ararylists
+     */
     public void clearCache(){
         bookArrayList.clear();
         userArrayList.clear();

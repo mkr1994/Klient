@@ -8,7 +8,7 @@ public class Crypter {
 
 
     public static String encryptDecryptXOR(String input) {
-        char[] key = {'M', 'K', 'R'}; //Dette kan være alle andre bogstaver end a,b og c.
+        char[] key = {'M', 'K', 'R'}; //The same key as on the server.
         StringBuilder output = new StringBuilder();
 
         //For loop der scrambler den String, der bliver indtastet
@@ -19,7 +19,7 @@ public class Crypter {
 
         return output.toString();
     }
-
+/*
     public static String xor() {
 
         //Eksempel på en hard-codet String, der bliver krypteret
@@ -39,5 +39,5 @@ public class Crypter {
         }
         return buf.toString();
     }
-
+*/
 }

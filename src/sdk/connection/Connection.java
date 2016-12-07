@@ -11,6 +11,9 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 
+/**
+ * Connection class establish connection to server, and recerives data.
+ */
 public class Connection {
 
     public static String serverURL = "http://localhost:8080/api/";
@@ -20,7 +23,11 @@ public class Connection {
         this.httpClient = HttpClients.createDefault();
     }
 
-
+    /**
+     * Execute a given http request
+     * @param uriRequest
+     * @param methods
+     */
     public void execute(HttpUriRequest uriRequest, final ResponseParser methods) {
 
         // Create a custom response handler
@@ -29,6 +36,7 @@ public class Connection {
             public String handleResponse(final HttpResponse response) throws IOException {
                 int status = response.getStatusLine().getStatusCode();
 
+                // Only return the entity if the call is succesful
                 if (status >= 200 && status < 300) {
                     HttpEntity entity = response.getEntity();
                     return entity != null ? EntityUtils.toString(entity) : null;
@@ -41,7 +49,7 @@ public class Connection {
         };
 
         try {
-            String json = this.httpClient.execute(uriRequest, responseHandler);
+            String json = this.httpClient.execute(uriRequest, responseHandler); //Execute http request and get returned data
 
             if (json != null) {
                 methods.payload(json);

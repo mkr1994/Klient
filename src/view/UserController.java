@@ -1,7 +1,6 @@
 package view;
 
 import controller.MainController;
-import com.google.gson.Gson;
 import sdk.encrypters.Digester;
 import sdk.model.CachedData;
 import sdk.model.User;
@@ -12,16 +11,18 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
+ * Controller class containing all user related methods.
  * Created by magnusrasmussen on 29/10/2016.
  */
 public class UserController {
 
-    private Scanner input = new Scanner(System.in);
+    private Scanner input;
+    private UserService userService;
 
-    private Gson gson = new Gson();
-    private UserService userService = new UserService();
-
-    public static boolean b;
+    public UserController() {
+        this.input = new Scanner(System.in);
+        this.userService = new UserService();
+    }
 
 
     public void editUser() {
@@ -39,7 +40,7 @@ public class UserController {
             choice = input.nextInt();
             input.nextLine();
             if (choice < 5) {
-                System.out.println("Please enter new value: ");
+                System.out.println("Please enter new info: ");
                 newInfo = input.nextLine();
             }
             switch (choice) {
@@ -59,7 +60,7 @@ public class UserController {
                     do {
                         System.out.println("Enter your old password: ");
                         newInfo = input.nextLine();
-                        tries++;
+                        tries++; //The user needs to enter old password to change and only have 3 tries.
                         if (u.getPassword().equals(Digester.hashWithSalt(newInfo))) {
                             tries = 3;
                             System.out.println("Enter your new password:");
@@ -82,8 +83,9 @@ public class UserController {
                     break;
 
             }
-        } while(!stopLoop);
+        } while (!stopLoop);
 
+        // If the info is entered correct, the servercall is made.
         if (fireRequest) {
             String s = "user/" + u.getUserID();
             userService.editUser(s, u, new ResponseCallback<String>() {
@@ -100,12 +102,20 @@ public class UserController {
         }
     }
 
+    /**
+     * This method shows all users if the origin request is from admin
+     *
+     * @param cachedData
+     */
     public void deleteUser(CachedData cachedData) {
         int userId = 0;
 
+        /**
+         * If the currentuser is admin
+         */
         if (MainController.currentUser.getUserType() == true) {
             getAllUsers(cachedData);
-            if(MainController.currentUser != null) {
+            if (MainController.currentUser != null) {
                 System.out.println("Please enter id on the user you wish to delete: ");
                 userId = input.nextInt();
                 input.nextLine();
@@ -115,7 +125,7 @@ public class UserController {
                     System.err.println("You did not enter yes! Deletion cancelled...");
                 }
             }
-        } else {
+        } else { //If the currentuser is normal user
             System.out.println("Are you sure that you want to delete your account? Write \"yes\" to confirm");
             if (input.next().equals("yes")) {
                 userId = MainController.currentUser.getUserID();
@@ -123,15 +133,17 @@ public class UserController {
                 System.err.println("You did not enter yes! Deletion cancelled...");
             }
         }
+        //If a valid userid is found, the request is send to the server
         if (userId != 0) {
+            final int newUserId = userId;
             String s = "user/" + userId;
             userService.deleteUser(s, new ResponseCallback<Boolean>() {
                 @Override
                 public void success(Boolean data) {
                     System.out.println("The account was deleted succesfully!");
-                   if(MainController.currentUser.getUserType() == false) {
-                       MainController.logout();
-                   }
+                    if (MainController.currentUser.getUserID() == newUserId) { //If the user has decided to delete his own account the user is logged out.
+                        MainController.logout();
+                    }
 
                 }
 
@@ -143,6 +155,7 @@ public class UserController {
         }
     }
 
+    // retieves userinfo on the user that has just logged in
     public void getUserFromToken() {
 
         userService.getUserFromToken(new ResponseCallback<User>() {
@@ -210,7 +223,7 @@ public class UserController {
 
             @Override
             public void error(int status) {
-                System.err.println("Error: "+status + " seems like your session has expired, please login again");
+                System.err.println("Error: " + status + " seems like your session has expired, please login again");
                 MainController.logout();
             }
         });

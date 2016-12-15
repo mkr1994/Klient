@@ -14,13 +14,13 @@ import java.util.Scanner;
  * Controllerclass containing all book related methods.
  * Created by magnusrasmussen on 29/10/2016.
  */
-public class BookController {
+public class BookView {
 
     private Scanner input;
     private BookService bookService;
     public static int curriculumID;
 
-    public BookController() {
+    public BookView() {
         this.input = new Scanner(System.in);
         this.bookService = new BookService();
     }
@@ -70,7 +70,7 @@ public class BookController {
         boolean inputOk = false;
 
         System.out.println("First you need to select the corresponding curriculum the book belongs to:");
-        getAllCurriculums();
+        getAllCurriculums(); // Extracts the curriculum id this book belongs to. The curriculum needs to exist before the book is created.
         System.out.println("Great! Now enter the book information: ");
 
         do {
@@ -131,9 +131,10 @@ public class BookController {
     }
 
     /**
-     * Lets the user extracts the curriculum id, by first showing school then removing all other schools. After that it shows the available educations
-     * and removing all others, and lastly lets the user enter which semester he is attending, which will result in a unique id used to get alle books
+     * Lets the user extract the curriculum id, by first showing school and requesting the user to select one. Then removing all other schools. After that it shows the available educations
+     * and removes all others, and lastly lets the user enter which semester he is attending, which will result in a unique id used to get all books
      * from a specific curriculum
+     *
      * @param curriculumArrayList
      * @return
      */
@@ -195,7 +196,7 @@ public class BookController {
             int semesterChoice = input.nextInt();
             for (int f = 0; f < curriculumArrayList.size(); f++) {
                 if (curriculumArrayList.get(f).getSemester() == semesterChoice) {
-                    curriculumID = curriculumArrayList.get(f).getCurriculumID(); //If the entered number matches a available semester, the curriculumid is found!
+                    curriculumID = curriculumArrayList.get(f).getCurriculumID(); //If the entered number matches an available semester, the curriculumid is found!
                     semesterFound = true;
                     break;
                 }
@@ -220,30 +221,37 @@ public class BookController {
                 int bookToGetInfo;
 
                 do {
-                    int i = 1;
-                    // Header
-                    System.out.printf("%-7s %-55s %-80s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:");
-                    for (Book book : books) {
-                        System.out.printf("%-7d %-55s %-80s %-25.0f\n", i, book.getTitle(), book.getAuthor(), book.getISBN());
-                        i++;
-                    }
 
-                    System.out.println("Enter number on book you wish to retrieve price info: ");
-                    bookToGetInfo = input.nextInt();
-                    bookToGetInfo--;
-                    System.out.printf("You have chosen: \n\"%s\" \nPrice at Academic Books: %8.2f kr. \nPrice at CDON: %10.2f kr. \nPrice at SAXO: %10.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
+                    if (books.size() > 0) {
+                        int i = 1;
+                        // Header
+                        System.out.printf("%-7s %-55s %-80s %-25s\n", "Nr.", "Book title:", "Book Author:", "Book ISBN:");
+                        for (Book book : books) {
+                            System.out.printf("%-7d %-55s %-80s %-25.0f\n", i, book.getTitle(), book.getAuthor(), book.getISBN());
+                            i++;
+                        }
 
-                    System.out.println("Do you wish to get price info on another book? Press 1 for for yes. Press 2 for no");
-                    if (input.nextInt() == 1) {
-                        continueInput = true;
+                        System.out.println("Enter number on book you wish to retrieve price info: ");
+                        bookToGetInfo = input.nextInt();
+                        bookToGetInfo--;
+                        System.out.printf("You have chosen: \n\"%s\" \nPrice at Academic Books: %8.2f kr. \nPrice at CDON: %18.2f kr. \nPrice at SAXO: %18.2f kr.\n", books.get(bookToGetInfo).getTitle(), books.get(bookToGetInfo).getPriceAB(), books.get(bookToGetInfo).getPriceCDON(), books.get(bookToGetInfo).getPriceSAXO());
+
+                        System.out.println("Do you wish to get price info on another book? Press 1 for for yes. Press 2 for no");
+                        if (input.nextInt() == 1) {
+                            continueInput = true;
+                        } else {
+                            continueInput = false;
+                        }
                     } else {
+                        System.out.println("This curriculum dosn't contain any books yet!\n");
                         continueInput = false;
                     }
+
                 } while (continueInput);
             }
 
             public void error(int status) {
-                System.err.println("Sorry, an error occurred! Error code: " + status);
+                System.err.println("Sorry, an error occurred! Error code: " + status +"\n");
             }
         });
     }
@@ -261,7 +269,7 @@ public class BookController {
             }
 
             public void error(int status) {
-                System.err.println("Sorry, an error occurred! Error code: " + status);
+                System.err.println("Sorry, an error occurred! Error code: " + status+"\n");
             }
         });
     }

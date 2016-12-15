@@ -14,12 +14,12 @@ import java.util.Scanner;
  * Controller class containing all user related methods.
  * Created by magnusrasmussen on 29/10/2016.
  */
-public class UserController {
+public class UserView {
 
     private Scanner input;
     private UserService userService;
 
-    public UserController() {
+    public UserView() {
         this.input = new Scanner(System.in);
         this.userService = new UserService();
     }
@@ -29,14 +29,14 @@ public class UserController {
         User u = MainController.currentUser;
         String newInfo = null;
         int choice, tries = 0;
-        boolean fireRequest = true, stopLoop = false;
+        boolean fireRequest = true, stopLoop = true;
 
         // Header for showing userinfo
-        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Password:");
-        System.out.printf("%-30s %-30s %-25s %-25s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*********");
+        System.out.printf("%-30s %-30s %-25s %-35s %-25s\n", "Username:", "Firstname:", "Lastname:", "Email:", "Password:");
+        System.out.printf("%-30s %-30s %-25s %-35s %-25s\n", u.getUserName(), u.getFirstName(), u.getLastName(), u.getEmail(), "*********");
 
         do {
-            System.out.println("Press 1 to edit username\nPress 2 to edit firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel");
+            System.out.println("Press 1 to edit username\nPress 2 to edit your firstname\nPress 3 to edit lastname\nPress 4 to edit email\nPress 5 to edit password\nPress 6 to cancel");
             choice = input.nextInt();
             input.nextLine();
             if (choice < 5) {
@@ -57,6 +57,7 @@ public class UserController {
                     u.setEmail(newInfo);
                     break;
                 case 5:
+                    // If the user want to edit his password he need to enter the old password first.
                     do {
                         System.out.println("Enter your old password: ");
                         newInfo = input.nextLine();
@@ -70,6 +71,8 @@ public class UserController {
                         } else {
                             System.err.println("You entered a wrong password! Tries left: " + (3 - tries));
                             fireRequest = false;
+                            if(tries > 2)
+                                MainController.currentUser = null; // Logout if 3 wrong tries.
                         }
                     } while (tries < 3);
                     break;
@@ -83,15 +86,15 @@ public class UserController {
                     break;
 
             }
-        } while (!stopLoop);
+        } while (choice > 6);
 
-        // If the info is entered correct, the servercall is made.
+        // If the info is entered correct, the servercall is executed.
         if (fireRequest) {
             String s = "user/" + u.getUserID();
             userService.editUser(s, u, new ResponseCallback<String>() {
                 @Override
                 public void success(String data) {
-                    System.out.println(data);
+                    System.out.println("User edited successful!\n");
                 }
 
                 @Override
@@ -103,7 +106,7 @@ public class UserController {
     }
 
     /**
-     * This method shows all users if the origin request is from admin
+     * This method shows all users if the origin request is from admin and lets the admin delete an user.
      *
      * @param cachedData
      */
@@ -114,7 +117,7 @@ public class UserController {
          * If the currentuser is admin
          */
         if (MainController.currentUser.getUserType() == true) {
-            getAllUsers(cachedData);
+            getAllUsers(cachedData); // Show all users
             if (MainController.currentUser != null) {
                 System.out.println("Please enter id on the user you wish to delete: ");
                 userId = input.nextInt();
@@ -140,9 +143,9 @@ public class UserController {
             userService.deleteUser(s, new ResponseCallback<Boolean>() {
                 @Override
                 public void success(Boolean data) {
-                    System.out.println("The account was deleted succesfully!");
+                    System.out.println("The account was deleted successfully!\n");
                     if (MainController.currentUser.getUserID() == newUserId) { //If the user has decided to delete his own account the user is logged out.
-                        MainController.logout();
+                        MainController.currentUser = null;
                     }
 
                 }
@@ -155,7 +158,7 @@ public class UserController {
         }
     }
 
-    // retieves userinfo on the user that has just logged in
+    // retrieves userinfo on the user from a token
     public void getUserFromToken() {
 
         userService.getUserFromToken(new ResponseCallback<User>() {
@@ -194,7 +197,7 @@ public class UserController {
             userService.create(user, new ResponseCallback<String>() {
                 @Override
                 public void success(String data) {
-                    System.out.println(data);
+                    System.out.println("Success! User created. \n");
                 }
 
                 @Override
@@ -204,10 +207,11 @@ public class UserController {
                 }
             });
         } else {
-            System.err.println("You didn't enter yes. Returning to main menu");
+            System.err.println("You didn't enter yes. Returning to main menu\n");
         }
     }
 
+    // Shows all users
     public void getAllUsers(CachedData cachedData) {
 
         userService.getAll(cachedData, new ResponseCallback<ArrayList<User>>() {
@@ -223,8 +227,8 @@ public class UserController {
 
             @Override
             public void error(int status) {
-                System.err.println("Error: " + status + " seems like your session has expired, please login again");
-                MainController.logout();
+                System.err.println("Error: " + status + " seems like your session has expired, please login again\n");
+                MainController.currentUser = null;
             }
         });
     }

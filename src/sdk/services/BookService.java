@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import sdk.model.CachedData;
-import view.BookController;
+import view.BookView;
 import controller.MainController;
 import sdk.encrypters.Crypter;
 import sdk.model.Curriculum;
@@ -26,18 +26,20 @@ public class BookService {
 
     private Connection connection;
     private Gson gson;
+
     public BookService() {
         this.connection = new Connection();
         this.gson = new Gson();
     }
 
+    // Create new curriculum
     public void createNewCurriculum(Curriculum curriculum, final ResponseCallback<String> responseCallback){
         HttpPost postRequest = new HttpPost(Connection.serverURL + "curriculum");
 
         try {
             StringEntity curriculumString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(curriculum)));
             postRequest.setEntity(curriculumString);
-            postRequest.setHeader("authorization", MainController.token);
+            postRequest.setHeader("authorization", MainController.token); //Token send in header
             postRequest.setHeader("Content-Type", "application/json");
 
             this.connection.execute(postRequest, new ResponseParser() {
@@ -55,13 +57,14 @@ public class BookService {
         }
     }
 
+    // Create new book
     public void createNewBook(Book book, final ResponseCallback<String> responseCallback) {
         HttpPost postRequest = new HttpPost(Connection.serverURL + "book");
 
         try {
             StringEntity bookString = new StringEntity(Crypter.encryptDecryptXOR(this.gson.toJson(book)));
             postRequest.setEntity(bookString);
-            postRequest.setHeader("authorization", MainController.token);
+            postRequest.setHeader("authorization", MainController.token); //Token send in header
             postRequest.setHeader("Content-Type", "application/json");
 
             this.connection.execute(postRequest, new ResponseParser() {
@@ -79,8 +82,9 @@ public class BookService {
         }
     }
 
+    // returns all books from specific curriclum
     public void getBooksFromCurriculum(final ResponseCallback<ArrayList<Book>> responseCallback) {
-        HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum/" + BookController.curriculumID + "/books");
+        HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum/" + BookView.curriculumID + "/books");
 
         this.connection.execute(getRequest, new ResponseParser() {
             public void payload(String json) {
@@ -95,17 +99,17 @@ public class BookService {
         });
     }
 
-
+    // Return all books
     public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<Book>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "book");
 
-        // Check if valid cached data already exists in RAM. The servercall isn't fulfilled if data has been received in the last 60 seconds.
+        // Check if valid cached data already exists in RAM. The servercall isn't executed if data has been received in the last 60 seconds.
         if(!cachedData.getBookArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime ) < 60000){
             responseCallback.success(cachedData.getBookArrayList());
         }else {
             this.connection.execute(getRequest, new ResponseParser() {
                 public void payload(String json) {
-                    MainController.startTime = System.currentTimeMillis();
+                    MainController.startTime = System.currentTimeMillis(); // "Resets" the timer used to control cached data
                     ArrayList<Book> books = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<Book>>() {
                     }.getType());
                     cachedData.setBookArrayList(books);
@@ -120,6 +124,7 @@ public class BookService {
 
     }
 
+    // Return all curriculums
     public void getAllCurriculums(final ResponseCallback<ArrayList<Curriculum>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "curriculum");
 

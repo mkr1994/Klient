@@ -1,11 +1,10 @@
 package sdk.model;
 
-import sdk.model.Book;
 
 import java.util.ArrayList;
 
 /**
- * This class contains to arraylists which can be used to store cached data
+ * This class contains two arraylists which can be used to store cached data
  * Created by magnusrasmussen on 23/11/2016.
  */
 public class CachedData {
@@ -30,7 +29,7 @@ public class CachedData {
     }
 
     /**
-     * Clear the ararylists
+     * Clear the arraylists
      */
     public void clearCache(){
         bookArrayList.clear();

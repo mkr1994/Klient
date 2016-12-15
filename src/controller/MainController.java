@@ -10,35 +10,36 @@ import sdk.model.User;
 import sdk.connection.Connection;
 import sdk.connection.ResponseCallback;
 import sdk.connection.ResponseParser;
-import view.BookController;
-import view.UserController;
+import view.BookView;
+import view.UserView;
 
 import java.io.*;
 import java.util.Scanner;
 
 /**
+ * Controlling login function, and which view to show the user
  * Created by magnusrasmussen on 25/10/2016.
  */
 public class MainController {
-    private BookController bookController;
-    private UserController userController;
+    private BookView bookView;
+    private UserView userView;
     private Scanner input;
-    public static User currentUser;
-    public static String token;
+    public static User currentUser; // Current user data
+    public static String token; // Accesstoken received at successful login
     private Connection connection;
-    public static long startTime;
-    private CachedData cachedData;
+    public static long startTime; // Used to control when to refresh cache
+    private CachedData cachedData; // Storing cached data local in RAM memory
 
     public MainController() {
-        this.bookController = new BookController();
-        this.userController = new UserController();
+        this.bookView = new BookView();
+        this.userView = new UserView();
         this.input = new Scanner(System.in);
         this.connection = new Connection();
         this.cachedData = new CachedData();
     }
 
     /**
-     * run method which vill continue to run.
+     * run method controlling the execution of the program and which menues to show.
      */
     public void run() {
 
@@ -58,7 +59,7 @@ public class MainController {
                             showGuestSwitch();
                             break;
                         case 4:
-                            userController.createNewUser();
+                            userView.createNewUser();
                             break;
 
                     }
@@ -69,9 +70,9 @@ public class MainController {
                     login(new ResponseCallback<String>() {
                         @Override
                         public void success(String data) {
-                            startTime = System.currentTimeMillis();
-                            token = data;
-                            userController.getUserFromToken();
+                            startTime = System.currentTimeMillis(); //Start timer used for caching
+                            token = data; //Set token.
+                            userView.getUserFromToken(); //get userinfo from token
                             switch (choice) {
                                 case 1:
                                     if (currentUser.getUserType() == false) {
@@ -93,21 +94,21 @@ public class MainController {
 
                         @Override
                         public void error(int status) {
-                            System.out.println("Error, status: " + status);
+                            System.err.println("Error, status: " + status);
 
                         }
                     });
                 } else {
                     System.err.println("Please enter a valid number!");
                 }
-            } catch (Exception e) {
+            } catch (Exception e) { // System wide catch. One misstep will result in  logout
                 System.err.println("A serious error occurred! Please login again! Error message:\n " + e.getMessage()); // Not that serious, probably just inputmismatch
 
             } finally { //Finally clause, so all session data always will be cleared.
                 cachedData.clearCache(); //Clear local cache.
-                logout();
-                input.nextLine();
+                logout(); // As the name states, logout by clearing other local data such as currentuser.
             }
+            input.nextLine();
 
         }
 
@@ -119,24 +120,24 @@ public class MainController {
     private void showUserSwitch() {
         int choice;
         do {
-            printMenu(3);
+            printMenu(3); //print user menu
             choice = input.nextInt();
 
             switch (choice) {
                 case 1:
-                    bookController.getBooksFromCurriculum();
+                    bookView.getBooksFromCurriculum();
                     break;
                 case 2:
-                    userController.editUser();
+                    userView.editUser();
                     break;
                 case 3:
-                    userController.deleteUser(cachedData);
+                    userView.deleteUser(cachedData);
                     break;
                 case 4:
-                    logout();
+                    currentUser = null;
                     break;
                 default:
-                    System.err.println("Please enter valid number");
+                    System.err.println("Please enter valid number\n");
                     break;
             }
         } while (choice > 4);
@@ -149,27 +150,26 @@ public class MainController {
     private void showAdminSwitch() {
         int choice;
         do {
-            printMenu(2);
+            printMenu(2); //Print admin menu
             choice = input.nextInt();
             switch (choice) {
                 case 1:
-                    userController.getAllUsers(cachedData);
+                    userView.getAllUsers(cachedData);
                     break;
                 case 2:
-                    userController.deleteUser(cachedData);
+                    userView.deleteUser(cachedData);
                     break;
                 case 3:
-                    bookController.createNewBook();
+                    bookView.createNewBook();
                     break;
                 case 4:
-                    bookController.getAllBooks(cachedData);
+                    bookView.getAllBooks(cachedData);
                     break;
                 case 5:
-                    bookController.createNewCurriculum();
+                    bookView.createNewCurriculum();
                     break;
                 case 6:
-                    cachedData.clearCache();
-                    logout();
+                    currentUser = null;
                     break;
             }
         } while (choice > 6);
@@ -187,13 +187,14 @@ public class MainController {
 
             switch (choice) {
                 case 1:
-                    bookController.getBooksFromCurriculum();
+                    bookView.getBooksFromCurriculum();
                     break;
                 case 2:
-                    userController.createNewUser();
+                    userView.createNewUser();
                     break;
+                case 3: break;
                 default:
-                    System.err.println("Please enter af valid number");
+                    System.err.println("Please enter af valid number\n");
                     break;
             }
         } while (choice > 3);
@@ -233,7 +234,7 @@ public class MainController {
 
 
         } catch (UnsupportedEncodingException e) {
-            System.err.println("An error occurred!");
+            System.err.println("An error occurred!\n");
         }
     }
 

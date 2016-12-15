@@ -31,6 +31,7 @@ public class UserService {
         this.gson = new Gson();
     }
 
+    // Edit user
     public void editUser(String path, User user, final ResponseCallback<String> responseCallback) {
         HttpPut putRequest = new HttpPut(Connection.serverURL + path);
 
@@ -55,6 +56,7 @@ public class UserService {
         }
     }
 
+    // Delete user
     public void deleteUser(String s, final ResponseCallback<Boolean> responseCallback) {
         HttpDelete deleteRequest = new HttpDelete(Connection.serverURL + s);
         try {
@@ -80,6 +82,7 @@ public class UserService {
         }
     }
 
+    // return user info
     public void getUserFromToken(final ResponseCallback<User> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user/fromToken");
 
@@ -99,6 +102,7 @@ public class UserService {
         });
     }
 
+    // Create new user
     public void create(User user, final ResponseCallback<String> responseCallback) {
         HttpPost postRequest = new HttpPost(Connection.serverURL + "user");
         try {
@@ -121,10 +125,11 @@ public class UserService {
         }
     }
 
+    // return all users.
     public void getAll(CachedData cachedData, final ResponseCallback<ArrayList<User>> responseCallback) {
         HttpGet getRequest = new HttpGet(Connection.serverURL + "user");
 
-        // Check if valid cached data already exists in RAM. The servercall isn't fulfilled if data has been received in the last 60 seconds.
+        // Check if valid cached data already exists in RAM. The servercall isn't executed if data has been received in the last 60 seconds.
         if (!cachedData.getUserArrayList().isEmpty() && (System.currentTimeMillis() - MainController.startTime) < 60000) {
             responseCallback.success(cachedData.getUserArrayList());
         } else {
@@ -133,7 +138,7 @@ public class UserService {
             getRequest.setHeader("Content-Type", "application/json");
             this.connection.execute(getRequest, new ResponseParser() {
                 public void payload(String json) {
-                    MainController.startTime = System.currentTimeMillis();
+                    MainController.startTime = System.currentTimeMillis(); // Reset timer
                     ArrayList<User> users = gson.fromJson(Crypter.encryptDecryptXOR(json), new TypeToken<ArrayList<User>>() {
                     }.getType());
                     cachedData.setUserArrayList(users);
